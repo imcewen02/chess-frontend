@@ -1,9 +1,9 @@
 import { Piece, Pawn, Rook, Knight, Bishop, Queen, King, Color } from './pieces';
 
 export class Board {
-	private static files: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-	private static ranks: number[] = [8, 7, 6, 5, 4, 3, 2, 1];
-	private pieces: Map<String, Piece> = new Map<String, Piece>();
+	private files: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+	private ranks: number[] = [8, 7, 6, 5, 4, 3, 2, 1];
+	private pieces: Map<string, Piece> = new Map<string, Piece>();
 
 	constructor() {
 		//Create entries for every space
@@ -48,14 +48,36 @@ export class Board {
 	}
 
 	getFiles() : string[] {
-		return Board.files;
+		return this.files;
+	}
+
+	getFileAsNumber(file: string) : number {
+		const index = this.files.indexOf(file);
+		if (index == -1) {
+			throw new Error("File Not Present");
+		}
+		return index + 1;
 	}
 
 	getRanks() : number[] {
-		return Board.ranks;
+		return this.ranks;
 	}
 
-	getPieceOnSquare(file: string, rank: number) : Piece | null | undefined {
-		return this.pieces.get(file + rank);
+	getPieceOnSquare(square: Square) : Piece | null | undefined {
+		return this.pieces.get(square.toStringId());
+	}
+}
+
+export class Square {
+	private file: string;
+	private rank: number;
+
+	constructor(file: string, rank: number) {
+		this.file = file;
+		this.rank = rank;
+	}
+
+	toStringId(): string {
+		return this.file + this.rank;
 	}
 }

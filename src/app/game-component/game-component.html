@@ -7,10 +7,10 @@
 					[attr.id]="file + rank"
 					(click)="onSquareClicked(file, rank)"
 					[ngClass]="getSquareColorClass(file, rank)">
-					<img *ngIf="board.getPieceOnSquare(file, rank)" 
+					<img *ngIf="board.getPieceOnSquare(getSquareFromFileAndRank(file, rank))" 
 						class="piece-img"
-						[src]="board.getPieceOnSquare(file, rank)?.getImageSource()" 
-						[attr.alt]="board.getPieceOnSquare(file, rank)?.getImageSource()" 
+						[src]="board.getPieceOnSquare(getSquareFromFileAndRank(file, rank))?.getImageSource()" 
+						[attr.alt]="board.getPieceOnSquare(getSquareFromFileAndRank(file, rank))?.getImageSource()" 
 						draggable="false" 
 					>
 				</div>
