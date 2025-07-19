@@ -6,7 +6,7 @@
             <div class="square" 
                 [attr.id]="file + rank"
                 (click)="onSquareClicked(file, rank)"
-                [ngClass]="{ 'bg-success': isSquareDark(file, rank) && file + rank != selectedSquare, 'bg-light': !isSquareDark(file, rank) && file + rank != selectedSquare, 'bg-warning': file + rank == selectedSquare }">
+                [ngClass]="getSquareColorClass(file, rank)">
                 <img *ngIf="getPieceBySquare(file, rank)" 
                     class="piece-img"
                     [src]="getPieceBySquare(file, rank)?.imageSource" 

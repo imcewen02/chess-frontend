@@ -27,9 +27,17 @@ export class GameComponent {
     this.selectedSquare = file + rank;
   }
 
-  isSquareDark(file: string, rank: number) : boolean {
-    const fileIndex = this.files.indexOf(file);
-    return (fileIndex + rank) % 2 != 0;
+  getSquareColorClass(file: string, rank: number) : string {
+    if (file + rank == this.selectedSquare && this.boardData.get(file + rank) != null) {
+      return 'bg-warning'
+    }
+
+    const squareDark = (this.files.indexOf(file) + rank) % 2 != 0;
+    if (squareDark) {
+      return 'bg-success'
+    } else {
+      return 'bg-light'
+    }
   }
 
   initializeStartingBoard() {
