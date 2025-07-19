@@ -1,16 +1,16 @@
 <div class="container-fluid">
 	<div class="board mt-5">
-		@for (rank of ranks; track rank) {
+		@for (rank of board.getRanks(); track rank) {
 			<div class="label fw-bold text-light">{{rank}}</div>
-			@for (file of files; track file) {
+			@for (file of board.getFiles(); track file) {
 				<div class="square" 
 					[attr.id]="file + rank"
 					(click)="onSquareClicked(file, rank)"
 					[ngClass]="getSquareColorClass(file, rank)">
-					<img *ngIf="getPieceBySquare(file, rank)" 
+					<img *ngIf="board.getPieceOnSquare(file, rank)" 
 						class="piece-img"
-						[src]="getPieceBySquare(file, rank)?.getImageSource()" 
-						[attr.alt]="getPieceBySquare(file, rank)?.getImageSource()" 
+						[src]="board.getPieceOnSquare(file, rank)?.getImageSource()" 
+						[attr.alt]="board.getPieceOnSquare(file, rank)?.getImageSource()" 
 						draggable="false" 
 					>
 				</div>
