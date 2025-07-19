@@ -1,26 +1,40 @@
+.label {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}
+
 .board {
 	display: grid;
 	grid-template-columns: 30px repeat(8, 75px);
 	grid-template-rows: repeat(8, 75px) 30px;
-}
-
-.square {
-	width: 75px;
-	height: 75px;
-}
-
-.piece-img {
-	width: 100%;
-	height: 100%; 
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
 }
 
-.label {
+.square-container {
+	width: 75px;
+	height: 75px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	text-align: center;
+}
+
+.piece-img {
+	width: 100%;
+	height: 100%; 
+}
+
+.available-move {
+	width: 33%;
+	height: 33%;
+	border-radius: 50%;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }

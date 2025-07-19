@@ -13,13 +13,16 @@ export class GameComponent {
 	board: Board = new Board();
 	playerColor: Color = Color.WHITE;
 	selectedSquare: Square | null = null;
-
-	ngOnInit() {
-
-	}
+	possibleMoves: Square[] = [];
 
 	onSquareClicked(file: string, rank: number) {
 		this.selectedSquare = new Square(file, rank);
+		this.possibleMoves = [];
+
+		const pieceAtSqaure = this.board.getPieceOnSquare(new Square(file, rank));
+		if (pieceAtSqaure?.getColor() == this.playerColor) {
+			this.possibleMoves = pieceAtSqaure.getPossibleMoves(this.selectedSquare, this.board);
+		}
 	}
 
 	getSquareColorClass(file: string, rank: number) : string {
@@ -27,10 +30,14 @@ export class GameComponent {
 			return 'bg-warning'
 		}
 
-		return (this.board.getFileAsNumber(file) + rank) % 2 == 0 ? 'bg-success' : 'bg-light'
+		return (Board.getFileAsNumber(file) + rank) % 2 == 0 ? 'bg-success' : 'bg-light'
 	}
 
-	getSquareFromFileAndRank(file: string, rank: number) : Square {
-		return new Square(file, rank);
+	getSquarePieceImage(file: string, rank: number) : string | undefined {
+		return this.board.getPieceOnSquare(new Square(file, rank))?.getImageSource()
+	}
+
+	isSquareInPossibleMoves(file: string, rank: number) : boolean {
+		return this.possibleMoves.some( square => square.getFile() == file && square.getRank() == rank);
 	}
 }

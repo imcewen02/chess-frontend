@@ -1,8 +1,8 @@
 import { Piece, Pawn, Rook, Knight, Bishop, Queen, King, Color } from './pieces';
 
 export class Board {
-	private files: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-	private ranks: number[] = [8, 7, 6, 5, 4, 3, 2, 1];
+	private static files: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+	private static ranks: number[] = [8, 7, 6, 5, 4, 3, 2, 1];
 	private pieces: Map<string, Piece> = new Map<string, Piece>();
 
 	constructor() {
@@ -48,19 +48,28 @@ export class Board {
 	}
 
 	getFiles() : string[] {
-		return this.files;
+		return Board.files;
 	}
 
-	getFileAsNumber(file: string) : number {
-		const index = this.files.indexOf(file);
+	static getFileAsNumber(file: string) : number {
+		const index = Board.files.indexOf(file);
 		if (index == -1) {
-			throw new Error("File Not Present");
+			throw new Error("File Not Recongized");
 		}
+
 		return index + 1;
 	}
 
+	static getNumberAsFile(fileIndex: number) : string {
+		if (fileIndex > 8 || fileIndex < 1) {
+			throw new Error("File Not Recongized");
+		}
+
+		return Board.files[fileIndex - 1];
+	}
+
 	getRanks() : number[] {
-		return this.ranks;
+		return Board.ranks;
 	}
 
 	getPieceOnSquare(square: Square) : Piece | null | undefined {
@@ -77,7 +86,15 @@ export class Square {
 		this.rank = rank;
 	}
 
-	toStringId(): string {
+	getFile() : string {
+		return this.file;
+	}
+
+	getRank() : number {
+		return this.rank;
+	}
+
+	toStringId() : string {
 		return this.file + this.rank;
 	}
 }

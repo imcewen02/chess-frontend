@@ -3,16 +3,20 @@
 		@for (rank of board.getRanks(); track rank) {
 			<div class="label fw-bold text-light">{{rank}}</div>
 			@for (file of board.getFiles(); track file) {
-				<div class="square" 
+				<div class="square-container"
 					[attr.id]="file + rank"
 					(click)="onSquareClicked(file, rank)"
-					[ngClass]="getSquareColorClass(file, rank)">
-					<img *ngIf="board.getPieceOnSquare(getSquareFromFileAndRank(file, rank))" 
+					[ngClass]="getSquareColorClass(file, rank)"
+				>
+					<img *ngIf="getSquarePieceImage(file, rank)" 
 						class="piece-img"
-						[src]="board.getPieceOnSquare(getSquareFromFileAndRank(file, rank))?.getImageSource()" 
-						[attr.alt]="board.getPieceOnSquare(getSquareFromFileAndRank(file, rank))?.getImageSource()" 
+						[src]="getSquarePieceImage(file, rank)" 
+						[attr.alt]="getSquarePieceImage(file, rank)" 
 						draggable="false" 
 					>
+					<div *ngIf="isSquareInPossibleMoves(file, rank)" class="square-container">
+						<div class="available-move bg-warning"></div>
+					</div>
 				</div>
 			}
 		}
