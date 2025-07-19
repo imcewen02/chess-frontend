@@ -1,31 +1,31 @@
 <div class="container-fluid">
-  <div class="board mt-5">
-    @for (rank of ranks; track rank) {
-        <div class="label fw-bold text-light">{{rank}}</div>
-        @for (file of files; track file) {
-            <div class="square" 
-                [attr.id]="file + rank"
-                (click)="onSquareClicked(file, rank)"
-                [ngClass]="getSquareColorClass(file, rank)">
-                <img *ngIf="getPieceBySquare(file, rank)" 
-                    class="piece-img"
-                    [src]="getPieceBySquare(file, rank)?.imageSource" 
-                    [attr.alt]="getPieceBySquare(file, rank)?.type" 
-                    draggable="false" 
-                >
-            </div>
-        }
-    }
+	<div class="board mt-5">
+		@for (rank of ranks; track rank) {
+			<div class="label fw-bold text-light">{{rank}}</div>
+			@for (file of files; track file) {
+				<div class="square" 
+					[attr.id]="file + rank"
+					(click)="onSquareClicked(file, rank)"
+					[ngClass]="getSquareColorClass(file, rank)">
+					<img *ngIf="getPieceBySquare(file, rank)" 
+						class="piece-img"
+						[src]="getPieceBySquare(file, rank)?.getImageSource()" 
+						[attr.alt]="getPieceBySquare(file, rank)?.getImageSource()" 
+						draggable="false" 
+					>
+				</div>
+			}
+		}
 
-    <!-- File labels -->
-    <div></div>
-    <div class="label fw-bold text-light">A</div>
-    <div class="label fw-bold text-light">B</div>
-    <div class="label fw-bold text-light">C</div>
-    <div class="label fw-bold text-light">D</div>
-    <div class="label fw-bold text-light">E</div>
-    <div class="label fw-bold text-light">F</div>
-    <div class="label fw-bold text-light">G</div>
-    <div class="label fw-bold text-light">H</div>
-  </div>
+		<!-- File labels -->
+		<div></div>
+		<div class="label fw-bold text-light">A</div>
+		<div class="label fw-bold text-light">B</div>
+		<div class="label fw-bold text-light">C</div>
+		<div class="label fw-bold text-light">D</div>
+		<div class="label fw-bold text-light">E</div>
+		<div class="label fw-bold text-light">F</div>
+		<div class="label fw-bold text-light">G</div>
+		<div class="label fw-bold text-light">H</div>
+	</div>
 </div>

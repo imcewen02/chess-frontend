@@ -1,26 +1,26 @@
 .board {
-    display: grid;
-    grid-template-columns: 30px repeat(8, 75px);
-    grid-template-rows: repeat(8, 75px) 30px;
+	display: grid;
+	grid-template-columns: 30px repeat(8, 75px);
+	grid-template-rows: repeat(8, 75px) 30px;
 }
 
 .square {
-    width: 75px;
-    height: 75px;
+	width: 75px;
+	height: 75px;
 }
 
 .piece-img {
-    width: 100%;
-    height: 100%; 
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+	width: 100%;
+	height: 100%; 
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 .label {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
 }
