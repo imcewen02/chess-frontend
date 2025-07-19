@@ -1,222 +1,23 @@
 <div class="container-fluid">
   <div class="board mt-5">
-    <!--Row 8-->
-    <div class="label fw-bold text-light">8</div>
-    <div id="A8" class="square bg-success">
-		<img *ngIf="getPieceByPosition('A8')" [src]="getPieceByPosition('A8')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="B8" class="square bg-light">
-		<img *ngIf="getPieceByPosition('B8')" [src]="getPieceByPosition('B8')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="C8" class="square bg-success">
-		<img *ngIf="getPieceByPosition('C8')" [src]="getPieceByPosition('C8')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="D8" class="square bg-light">
-		<img *ngIf="getPieceByPosition('D8')" [src]="getPieceByPosition('D8')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="E8" class="square bg-success">
-		<img *ngIf="getPieceByPosition('E8')" [src]="getPieceByPosition('E8')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="F8" class="square bg-light">
-		<img *ngIf="getPieceByPosition('F8')" [src]="getPieceByPosition('F8')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="G8" class="square bg-success">
-		<img *ngIf="getPieceByPosition('G8')" [src]="getPieceByPosition('G8')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="H8" class="square bg-light">
-		<img *ngIf="getPieceByPosition('H8')" [src]="getPieceByPosition('H8')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
+    @for (rank of ranks; track rank) {
+        <div class="label fw-bold text-light">{{rank}}</div>
+        @for (file of files; track file) {
+            <div class="square" 
+                [attr.id]="file + rank"
+                (click)="onSquareClicked(file, rank)"
+                [ngClass]="{ 'bg-success': isSquareDark(file, rank) && file + rank != selectedSquare, 'bg-light': !isSquareDark(file, rank) && file + rank != selectedSquare, 'bg-warning': file + rank == selectedSquare }">
+                <img *ngIf="getPieceBySquare(file, rank)" 
+                    class="piece-img"
+                    [src]="getPieceBySquare(file, rank)?.imageSource" 
+                    [attr.alt]="getPieceBySquare(file, rank)?.type" 
+                    draggable="false" 
+                >
+            </div>
+        }
+    }
 
-    <!--Row 7-->
-    <div class="label fw-bold text-light">7</div>
-    <div id="A7" class="square bg-light">
-		<img *ngIf="getPieceByPosition('A7')" [src]="getPieceByPosition('A7')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="B7" class="square bg-success">
-		<img *ngIf="getPieceByPosition('B7')" [src]="getPieceByPosition('B7')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="C7" class="square bg-light">
-		<img *ngIf="getPieceByPosition('C7')" [src]="getPieceByPosition('C7')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="D7" class="square bg-success">
-		<img *ngIf="getPieceByPosition('D7')" [src]="getPieceByPosition('D7')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="E7" class="square bg-light">
-		<img *ngIf="getPieceByPosition('E7')" [src]="getPieceByPosition('E7')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="F7" class="square bg-success">
-		<img *ngIf="getPieceByPosition('F7')" [src]="getPieceByPosition('F7')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="G7" class="square bg-light">
-		<img *ngIf="getPieceByPosition('G7')" [src]="getPieceByPosition('G7')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="H7" class="square bg-success">
-		<img *ngIf="getPieceByPosition('H7')" [src]="getPieceByPosition('H7')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-
-    <!--Row 6-->
-    <div class="label fw-bold text-light">6</div>
-    <div id="A6" class="square bg-success">
-		<img *ngIf="getPieceByPosition('A6')" [src]="getPieceByPosition('A6')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="B6" class="square bg-light">
-		<img *ngIf="getPieceByPosition('B6')" [src]="getPieceByPosition('B6')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="C6" class="square bg-success">
-		<img *ngIf="getPieceByPosition('C6')" [src]="getPieceByPosition('C6')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="D6" class="square bg-light">
-		<img *ngIf="getPieceByPosition('D6')" [src]="getPieceByPosition('D6')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="E6" class="square bg-success">
-		<img *ngIf="getPieceByPosition('E6')" [src]="getPieceByPosition('E6')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="F6" class="square bg-light">
-		<img *ngIf="getPieceByPosition('F6')" [src]="getPieceByPosition('F6')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="G6" class="square bg-success">
-		<img *ngIf="getPieceByPosition('G6')" [src]="getPieceByPosition('G6')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="H6" class="square bg-light">
-		<img *ngIf="getPieceByPosition('H6')" [src]="getPieceByPosition('H6')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-
-    <!--Row 5-->
-    <div class="label fw-bold text-light">5</div>
-    <div id="A5" class="square bg-light">
-		<img *ngIf="getPieceByPosition('A5')" [src]="getPieceByPosition('A5')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="B5" class="square bg-success">
-		<img *ngIf="getPieceByPosition('B5')" [src]="getPieceByPosition('B5')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="C5" class="square bg-light">
-		<img *ngIf="getPieceByPosition('C5')" [src]="getPieceByPosition('C5')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="D5" class="square bg-success">
-		<img *ngIf="getPieceByPosition('D5')" [src]="getPieceByPosition('D5')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="E5" class="square bg-light">
-		<img *ngIf="getPieceByPosition('E5')" [src]="getPieceByPosition('E5')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="F5" class="square bg-success">
-		<img *ngIf="getPieceByPosition('F5')" [src]="getPieceByPosition('F5')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="G5" class="square bg-light">
-		<img *ngIf="getPieceByPosition('G5')" [src]="getPieceByPosition('G5')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="H5" class="square bg-success">
-		<img *ngIf="getPieceByPosition('H5')" [src]="getPieceByPosition('H5')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-
-    <!--Row 4-->
-    <div class="label fw-bold text-light">4</div>
-    <div id="A4" class="square bg-success">
-		<img *ngIf="getPieceByPosition('A4')" [src]="getPieceByPosition('A4')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="B4" class="square bg-light">
-		<img *ngIf="getPieceByPosition('B4')" [src]="getPieceByPosition('B4')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="C4" class="square bg-success">
-		<img *ngIf="getPieceByPosition('C4')" [src]="getPieceByPosition('C4')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="D4" class="square bg-light">
-		<img *ngIf="getPieceByPosition('D4')" [src]="getPieceByPosition('D4')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="E4" class="square bg-success">
-		<img *ngIf="getPieceByPosition('E4')" [src]="getPieceByPosition('E4')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="F4" class="square bg-light">
-		<img *ngIf="getPieceByPosition('F4')" [src]="getPieceByPosition('F4')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="G4" class="square bg-success">
-		<img *ngIf="getPieceByPosition('G4')" [src]="getPieceByPosition('G4')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="H4" class="square bg-light">
-		<img *ngIf="getPieceByPosition('H4')" [src]="getPieceByPosition('H4')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-
-    <!--Row 3-->
-    <div class="label fw-bold text-light">3</div>
-    <div id="A3" class="square bg-light">
-		<img *ngIf="getPieceByPosition('A3')" [src]="getPieceByPosition('A3')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="B3" class="square bg-success">
-		<img *ngIf="getPieceByPosition('B3')" [src]="getPieceByPosition('B3')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="C3" class="square bg-light">
-		<img *ngIf="getPieceByPosition('C3')" [src]="getPieceByPosition('C3')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="D3" class="square bg-success">
-		<img *ngIf="getPieceByPosition('D3')" [src]="getPieceByPosition('D3')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="E3" class="square bg-light">
-		<img *ngIf="getPieceByPosition('E3')" [src]="getPieceByPosition('E3')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="F3" class="square bg-success">
-		<img *ngIf="getPieceByPosition('F3')" [src]="getPieceByPosition('F3')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="G3" class="square bg-light">
-		<img *ngIf="getPieceByPosition('G3')" [src]="getPieceByPosition('G3')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="H3" class="square bg-success">
-		<img *ngIf="getPieceByPosition('H3')" [src]="getPieceByPosition('H3')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-
-    <!--Row 2-->
-    <div class="label fw-bold text-light">2</div>
-    <div id="A2" class="square bg-success">
-		<img *ngIf="getPieceByPosition('A2')" [src]="getPieceByPosition('A2')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="B2" class="square bg-light">
-		<img *ngIf="getPieceByPosition('B2')" [src]="getPieceByPosition('B2')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="C2" class="square bg-success">
-		<img *ngIf="getPieceByPosition('C2')" [src]="getPieceByPosition('C2')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="D2" class="square bg-light">
-		<img *ngIf="getPieceByPosition('D2')" [src]="getPieceByPosition('D2')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="E2" class="square bg-success">
-		<img *ngIf="getPieceByPosition('E2')" [src]="getPieceByPosition('E2')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="F2" class="square bg-light">
-		<img *ngIf="getPieceByPosition('F2')" [src]="getPieceByPosition('F2')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="G2" class="square bg-success">
-		<img *ngIf="getPieceByPosition('G2')" [src]="getPieceByPosition('G2')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="H2" class="square bg-light">
-		<img *ngIf="getPieceByPosition('H2')" [src]="getPieceByPosition('H2')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-
-    <!--Row 1-->
-    <div class="label fw-bold text-light">1</div>
-    <div id="A1" class="square bg-light">
-		<img *ngIf="getPieceByPosition('A1')" [src]="getPieceByPosition('A1')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="B1" class="square bg-success">
-		<img *ngIf="getPieceByPosition('B1')" [src]="getPieceByPosition('B1')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="C1" class="square bg-light">
-		<img *ngIf="getPieceByPosition('C1')" [src]="getPieceByPosition('C1')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="D1" class="square bg-success">
-		<img *ngIf="getPieceByPosition('D1')" [src]="getPieceByPosition('D1')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="E1" class="square bg-light">
-		<img *ngIf="getPieceByPosition('E1')" [src]="getPieceByPosition('E1')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="F1" class="square bg-success">
-		<img *ngIf="getPieceByPosition('F1')" [src]="getPieceByPosition('F1')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="G1" class="square bg-light">
-		<img *ngIf="getPieceByPosition('G1')" [src]="getPieceByPosition('G1')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-    <div id="H1" class="square bg-success">
-		<img *ngIf="getPieceByPosition('H1')" [src]="getPieceByPosition('H1')?.imageSource" alt="piece" class="piece-img" draggable="false">
-	</div>
-
-    <!-- Column labels -->
+    <!-- File labels -->
     <div></div>
     <div class="label fw-bold text-light">A</div>
     <div class="label fw-bold text-light">B</div>

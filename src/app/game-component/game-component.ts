@@ -9,60 +9,83 @@ import { Component } from '@angular/core';
 })
 export class GameComponent {
 
-  boardData = new Map<string, PieceData | null>();
+  boardData = new Map<string, Piece | null>();
+  files: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  ranks: number[] = [8, 7, 6, 5, 4, 3, 2, 1];
+
+  selectedSquare: string = '';
 
   ngOnInit() {
     this.initializeStartingBoard();
   }
 
-  getPieceByPosition(position: string) : PieceData | null | undefined {
-    return this.boardData.get(position);
+  getPieceBySquare(file: string, rank: number) : Piece | null | undefined {
+    return this.boardData.get(file + rank);
   }
 
-  positionClicked(position: string) {
-    
+  onSquareClicked(file: string, rank: number) {
+    this.selectedSquare = file + rank;
+  }
+
+  isSquareDark(file: string, rank: number) : boolean {
+    const fileIndex = this.files.indexOf(file);
+    return (fileIndex + rank) % 2 != 0;
   }
 
   initializeStartingBoard() {
     //Create entries for every space
-    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].forEach( column => { ['1', '2', '3', '4', '5', '6', '7', '8'].forEach( row => { this.boardData.set(column + row, null); } ) } );
+    this.files.forEach( file => { this.ranks.forEach( rank => { this.boardData.set(file + rank, null); } ) } );
 
     //Fill in the starting spaces
-    this.boardData.set('A1', {type: Type.ROOK, color: Color.WHITE, imageSource: "white_rook.png"})
-    this.boardData.set('B1', {type: Type.KNIGHT, color: Color.WHITE, imageSource: "white_knight.png"})
-    this.boardData.set('C1', {type: Type.BISHOP, color: Color.WHITE, imageSource: "white_bishop.png"})
-    this.boardData.set('D1', {type: Type.QUEEN, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('E1', {type: Type.KING, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('F1', {type: Type.BISHOP, color: Color.WHITE, imageSource: "white_bishop.png"})
-    this.boardData.set('G1', {type: Type.KNIGHT, color: Color.WHITE, imageSource: "white_knight.png"})
-    this.boardData.set('H1', {type: Type.ROOK, color: Color.WHITE, imageSource: "white_rook.png"})
+    const whitePawn = {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"};
+    const whiteRook = {type: Type.ROOK, color: Color.WHITE, imageSource: "white_rook.png"};
+    const whiteKnight = {type: Type.KNIGHT, color: Color.WHITE, imageSource: "white_knight.png"};
+    const whiteBishop = {type: Type.BISHOP, color: Color.WHITE, imageSource: "white_bishop.png"};
+    const whiteQueen = {type: Type.QUEEN, color: Color.WHITE, imageSource: "white_queen.png"};
+    const whiteKing = {type: Type.KING, color: Color.WHITE, imageSource: "white_king.png"};
 
-    this.boardData.set('A2', {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('B2', {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('C2', {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('D2', {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('E2', {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('F2', {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('G2', {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"})
-    this.boardData.set('H2', {type: Type.PAWN, color: Color.WHITE, imageSource: "white_pawn.png"})
+    this.boardData.set('A1', whiteRook)
+    this.boardData.set('B1', whiteKnight)
+    this.boardData.set('C1', whiteBishop)
+    this.boardData.set('D1', whiteQueen)
+    this.boardData.set('E1', whiteKing)
+    this.boardData.set('F1', whiteBishop)
+    this.boardData.set('G1', whiteKnight)
+    this.boardData.set('H1', whiteRook)
 
-    this.boardData.set('A8', {type: Type.ROOK, color: Color.BLACK, imageSource: "black_rook.png"})
-    this.boardData.set('B8', {type: Type.KNIGHT, color: Color.BLACK, imageSource: "black_knight.png"})
-    this.boardData.set('C8', {type: Type.BISHOP, color: Color.BLACK, imageSource: "black_bishop.png"})
-    this.boardData.set('D8', {type: Type.QUEEN, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('E8', {type: Type.KING, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('F8', {type: Type.BISHOP, color: Color.BLACK, imageSource: "black_bishop.png"})
-    this.boardData.set('G8', {type: Type.KNIGHT, color: Color.BLACK, imageSource: "black_knight.png"})
-    this.boardData.set('H8', {type: Type.ROOK, color: Color.BLACK, imageSource: "black_rook.png"})
+    this.boardData.set('A2', whitePawn)
+    this.boardData.set('B2', whitePawn)
+    this.boardData.set('C2', whitePawn)
+    this.boardData.set('D2', whitePawn)
+    this.boardData.set('E2', whitePawn)
+    this.boardData.set('F2', whitePawn)
+    this.boardData.set('G2', whitePawn)
+    this.boardData.set('H2', whitePawn)
 
-    this.boardData.set('A7', {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('B7', {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('C7', {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('D7', {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('E7', {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('F7', {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('G7', {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"})
-    this.boardData.set('H7', {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"})
+    const blackPawn = {type: Type.PAWN, color: Color.BLACK, imageSource: "black_pawn.png"};
+    const blackRook = {type: Type.ROOK, color: Color.BLACK, imageSource: "black_rook.png"};
+    const blackKnight = {type: Type.KNIGHT, color: Color.BLACK, imageSource: "black_knight.png"};
+    const blackBishop = {type: Type.BISHOP, color: Color.BLACK, imageSource: "black_bishop.png"};
+    const blackQueen = {type: Type.QUEEN, color: Color.BLACK, imageSource: "black_queen.png"};
+    const blackKing = {type: Type.KING, color: Color.BLACK, imageSource: "black_king.png"};
+
+    this.boardData.set('A8', blackRook)
+    this.boardData.set('B8', blackKnight)
+    this.boardData.set('C8', blackBishop)
+    this.boardData.set('D8', blackQueen)
+    this.boardData.set('E8', blackKing)
+    this.boardData.set('F8', blackBishop)
+    this.boardData.set('G8', blackKnight)
+    this.boardData.set('H8', blackRook)
+
+    this.boardData.set('A7', blackPawn)
+    this.boardData.set('B7', blackPawn)
+    this.boardData.set('C7', blackPawn)
+    this.boardData.set('D7', blackPawn)
+    this.boardData.set('E7', blackPawn)
+    this.boardData.set('F7', blackPawn)
+    this.boardData.set('G7', blackPawn)
+    this.boardData.set('H7', blackPawn)
   }
 }
 
@@ -80,7 +103,7 @@ enum Color {
   BLACK
 }
 
-type PieceData = {
+type Piece = {
   type: Type;
   color: Color;
   imageSource: string;
