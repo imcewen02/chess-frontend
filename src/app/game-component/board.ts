@@ -51,7 +51,7 @@ export class Board {
 		return Board.files;
 	}
 
-	static getFileAsNumber(file: string) : number {
+	getFileAsNumber(file: string) : number {
 		const index = Board.files.indexOf(file);
 		if (index == -1) {
 			throw new Error("File Not Recongized");
@@ -60,7 +60,7 @@ export class Board {
 		return index + 1;
 	}
 
-	static getNumberAsFile(fileIndex: number) : string {
+	getNumberAsFile(fileIndex: number) : string {
 		if (fileIndex > 8 || fileIndex < 1) {
 			throw new Error("File Not Recongized");
 		}

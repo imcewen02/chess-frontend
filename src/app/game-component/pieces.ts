@@ -44,7 +44,7 @@ export class Pawn extends Piece {
 
 		//Capture Left
 		if (!(this.color == Color.WHITE && origin.getFile() == 'A') && !(this.color == Color.BLACK && origin.getFile() == 'H')) {
-			const forwardLeftSquare = this.getForwardLeftSquare(origin);
+			const forwardLeftSquare = this.getForwardLeftSquare(origin, board);
 			if (board.getPieceOnSquare(forwardLeftSquare) && board.getPieceOnSquare(forwardLeftSquare)?.getColor() != this.color) {
 				possibleMoves.push(forwardLeftSquare);
 			}
@@ -52,7 +52,7 @@ export class Pawn extends Piece {
 	
 		//Capture Right
 		if (!(this.color == Color.WHITE && origin.getFile() == 'H') && !(this.color == Color.BLACK && origin.getFile() == 'A')) {
-			const forwardRightSquare = this.getForwardRightSquare(origin);
+			const forwardRightSquare = this.getForwardRightSquare(origin, board);
 			if (board.getPieceOnSquare(forwardRightSquare) && board.getPieceOnSquare(forwardRightSquare)?.getColor() != this.color) {
 				possibleMoves.push(forwardRightSquare);
 			}
@@ -73,14 +73,14 @@ export class Pawn extends Piece {
 		return new Square(file, rank);
 	}
 
-	private getForwardLeftSquare(origin: Square) : Square {
-		const file: string = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (this.color == Color.WHITE ? -1 : 1));
+	private getForwardLeftSquare(origin: Square, board: Board) : Square {
+		const file: string = board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + (this.color == Color.WHITE ? -1 : 1));
 		const rank: number = origin.getRank() + (this.color == Color.WHITE ? 1 : -1);
 		return new Square(file, rank);	
 	}
 
-	private getForwardRightSquare(origin: Square) : Square {
-		const file: string = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (this.color == Color.WHITE ? 1 : -1));
+	private getForwardRightSquare(origin: Square, board: Board) : Square {
+		const file: string = board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + (this.color == Color.WHITE ? 1 : -1));
 		const rank: number = origin.getRank() + (this.color == Color.WHITE ? 1 : -1);
 		return new Square(file, rank);	
 	}

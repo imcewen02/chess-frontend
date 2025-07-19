@@ -10,6 +10,8 @@
 	grid-template-columns: 30px repeat(8, 75px);
 	grid-template-rows: repeat(8, 75px) 30px;
 
+	width: max-content;
+
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -53,9 +55,29 @@
 	height: 33%;
 
 	border-radius: 50%;
-	
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
+
+	opacity: 70%;
+}
+
+.available-capture-dot {
+	width: 95%;
+	height: 95%;
+
+	border-radius: 50%;
+	border: 7px solid var(--bs-warning);
+
+	opacity: 70%;
+}
+
+.dark {
+	background-color: var(--bs-success);
+}
+
+.light {
+	background-color: var(--bs-light);
+}
+
+.highlight {
+	background-color: var(--bs-warning);
+	opacity: 70%;
 }
