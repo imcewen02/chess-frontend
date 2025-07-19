@@ -45,7 +45,7 @@ export class Pawn extends Piece {
 		//Capture Left
 		if (!(this.color == Color.WHITE && origin.getFile() == 'A') && !(this.color == Color.BLACK && origin.getFile() == 'H')) {
 			const forwardLeftSquare = this.getForwardLeftSquare(origin);
-			if (board.getPieceOnSquare(forwardLeftSquare)) {
+			if (board.getPieceOnSquare(forwardLeftSquare) && board.getPieceOnSquare(forwardLeftSquare)?.getColor() != this.color) {
 				possibleMoves.push(forwardLeftSquare);
 			}
 		}
@@ -53,7 +53,7 @@ export class Pawn extends Piece {
 		//Capture Right
 		if (!(this.color == Color.WHITE && origin.getFile() == 'H') && !(this.color == Color.BLACK && origin.getFile() == 'A')) {
 			const forwardRightSquare = this.getForwardRightSquare(origin);
-			if (board.getPieceOnSquare(forwardRightSquare)) {
+			if (board.getPieceOnSquare(forwardRightSquare) && board.getPieceOnSquare(forwardRightSquare)?.getColor() != this.color) {
 				possibleMoves.push(forwardRightSquare);
 			}
 		}

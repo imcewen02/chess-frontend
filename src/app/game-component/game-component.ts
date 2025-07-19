@@ -16,12 +16,18 @@ export class GameComponent {
 	possibleMoves: Square[] = [];
 
 	onSquareClicked(file: string, rank: number) {
-		this.selectedSquare = new Square(file, rank);
-		this.possibleMoves = [];
+		if (this.isSquareInPossibleMoves(file, rank)) {
+			this.board.movePiece(this.selectedSquare!, new Square(file, rank));
+			this.selectedSquare = null;
+			this.possibleMoves = [];
+		} else {
+			this.selectedSquare = new Square(file, rank);
+			this.possibleMoves = [];
 
-		const pieceAtSqaure = this.board.getPieceOnSquare(new Square(file, rank));
-		if (pieceAtSqaure?.getColor() == this.playerColor) {
-			this.possibleMoves = pieceAtSqaure.getPossibleMoves(this.selectedSquare, this.board);
+			const pieceAtSquare = this.board.getPieceOnSquare(new Square(file, rank));
+			if (pieceAtSquare?.getColor() == this.playerColor) {
+				this.possibleMoves = pieceAtSquare.getPossibleMoves(this.selectedSquare, this.board);
+			}
 		}
 	}
 

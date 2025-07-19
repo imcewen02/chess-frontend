@@ -14,8 +14,8 @@
 						[attr.alt]="getSquarePieceImage(file, rank)" 
 						draggable="false" 
 					>
-					<div *ngIf="isSquareInPossibleMoves(file, rank)" class="square-container">
-						<div class="available-move bg-warning"></div>
+					<div *ngIf="isSquareInPossibleMoves(file, rank)" class="available-move-container">
+						<div class="available-move-dot bg-warning"></div>
 					</div>
 				</div>
 			}

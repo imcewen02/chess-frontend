@@ -75,6 +75,11 @@ export class Board {
 	getPieceOnSquare(square: Square) : Piece | null | undefined {
 		return this.pieces.get(square.toStringId());
 	}
+
+	movePiece(origin: Square, destination: Square) {
+		this.pieces.set(destination.toStringId(), this.pieces.get(origin.toStringId())!)
+		this.pieces.delete(origin.toStringId());
+	}
 }
 
 export class Square {
