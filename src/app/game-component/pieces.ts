@@ -128,7 +128,57 @@ export class Knight extends Piece {
 	}
 
 	override getPossibleMoves(origin: Square, board: Board): Square[] {
-		return [];
+		const possibleMoves: Square[] = [];
+
+		//Forward Forward Right
+		let square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + 1), origin.getRank() + 2);
+		if (!board.getPieceOnSquare(square) || board.getPieceOnSquare(square)?.getColor() != this.color) {
+			possibleMoves.push(square);
+		}
+
+		//Forward Forward Left
+		square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) - 1), origin.getRank() + 2);
+		if (!board.getPieceOnSquare(square) || board.getPieceOnSquare(square)?.getColor() != this.color) {
+			possibleMoves.push(square);
+		}
+
+		//Forward Left Left
+		square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) - 2), origin.getRank() + 1);
+		if (!board.getPieceOnSquare(square) || board.getPieceOnSquare(square)?.getColor() != this.color) {
+			possibleMoves.push(square);
+		}
+
+		//Backward Left Left
+		square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) - 2), origin.getRank() - 1);
+		if (!board.getPieceOnSquare(square) || board.getPieceOnSquare(square)?.getColor() != this.color) {
+			possibleMoves.push(square);
+		}
+
+		//Backward Backward Left
+		square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) - 1), origin.getRank() - 2);
+		if (!board.getPieceOnSquare(square) || board.getPieceOnSquare(square)?.getColor() != this.color) {
+			possibleMoves.push(square);
+		}
+
+		//Backward Backward Right
+		square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + 1), origin.getRank() - 2);
+		if (!board.getPieceOnSquare(square) || board.getPieceOnSquare(square)?.getColor() != this.color) {
+			possibleMoves.push(square);
+		}
+
+		//Backward Right Right
+		square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + 2), origin.getRank() - 1);
+		if (!board.getPieceOnSquare(square) || board.getPieceOnSquare(square)?.getColor() != this.color) {
+			possibleMoves.push(square);
+		}
+
+		//Forward Right Right
+		square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + 2), origin.getRank() + 1);
+		if (!board.getPieceOnSquare(square) || board.getPieceOnSquare(square)?.getColor() != this.color) {
+			possibleMoves.push(square);
+		}
+
+		return possibleMoves;
 	}
 }
 
