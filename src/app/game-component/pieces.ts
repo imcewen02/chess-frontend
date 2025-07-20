@@ -210,7 +210,113 @@ export class Queen extends Piece {
 	}
 
 	override getPossibleMoves(origin: Square, board: Board): Square[] {
-		return [];
+		const possibleMoves: Square[] = [];
+
+		//Forward
+		for (let rank = origin.getRank() + 1; rank <= 8; rank++) {
+			const square = new Square(origin.getFile(), rank);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+		}
+
+		//Backward
+		for (let rank = origin.getRank() - 1; rank >= 1; rank--) {
+			const square = new Square(origin.getFile(), rank);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+		}
+
+		//Left
+		for (let file = board.getFileAsNumber(origin.getFile()) + 1; file <= 8; file++) {
+			const square = new Square(board.getNumberAsFile(file), origin.getRank());
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+		}
+
+		//Right
+		for (let file = board.getFileAsNumber(origin.getFile()) - 1; file >= 1; file--) {
+			const square = new Square(board.getNumberAsFile(file), origin.getRank());
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+		}
+
+		//Forward Right
+		let frIndex = 1;
+		while (origin.getRank() + frIndex <= 8 && board.getFileAsNumber(origin.getFile()) + frIndex <= 8) {
+			const square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + frIndex), origin.getRank() + frIndex);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+			frIndex++;
+		}
+
+		//Forward Left
+		let flIndex = 1;
+		while (origin.getRank() + flIndex <= 8 && board.getFileAsNumber(origin.getFile()) - flIndex >= 1) {
+			const square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) - flIndex), origin.getRank() + flIndex);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+			flIndex++;
+		}
+
+		//Backward Left
+		let blIndex = 1;
+		while (origin.getRank() - blIndex >= 1 && board.getFileAsNumber(origin.getFile()) - blIndex >= 1) {
+			const square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) - blIndex), origin.getRank() - blIndex);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+			blIndex++;
+		}
+
+		//Backward Right
+		let brIndex = 1;
+		while (origin.getRank() - brIndex >= 1 && board.getFileAsNumber(origin.getFile()) + brIndex <= 8) {
+			const square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + brIndex), origin.getRank() - brIndex);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+			brIndex++;
+		}
+
+		return possibleMoves;
 	}
 }
 
