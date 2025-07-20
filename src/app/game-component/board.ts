@@ -52,20 +52,11 @@ export class Board {
 	}
 
 	getFileAsNumber(file: string) : number {
-		const index = Board.files.indexOf(file);
-		if (index == -1) {
-			throw new Error("File Not Recongized");
-		}
-
-		return index + 1;
+		return Board.files.indexOf(file) + 1;
 	}
 
 	getNumberAsFile(fileIndex: number) : string {
-		if (fileIndex > 8 || fileIndex < 1) {
-			throw new Error("File Not Recongized");
-		}
-
-		return Board.files[fileIndex - 1];
+		return fileIndex > 8 || fileIndex < 1 ? '' : Board.files[fileIndex - 1];
 	}
 
 	getRanks() : number[] {
