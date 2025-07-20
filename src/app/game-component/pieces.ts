@@ -58,6 +58,8 @@ export class Pawn extends Piece {
 			}
 		}
 
+		//TODO: En passant
+
 		return possibleMoves;
 	}
 }
@@ -118,6 +120,8 @@ export class Rook extends Piece {
 			possibleMoves.push(square);
 		}
 
+		//TODO: Castling
+
 		return possibleMoves;
 	}
 }
@@ -138,7 +142,65 @@ export class Bishop extends Piece {
 	}
 
 	override getPossibleMoves(origin: Square, board: Board): Square[] {
-		return [];
+		const possibleMoves: Square[] = [];
+
+		//Forward Right
+		let frIndex = 1;
+		while (origin.getRank() + frIndex <= 8 && board.getFileAsNumber(origin.getFile()) + frIndex <= 8) {
+			const square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + frIndex), origin.getRank() + frIndex);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+			frIndex++;
+		}
+
+		//Forward Left
+		let flIndex = 1;
+		while (origin.getRank() + flIndex <= 8 && board.getFileAsNumber(origin.getFile()) - flIndex >= 1) {
+			const square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) - flIndex), origin.getRank() + flIndex);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+			flIndex++;
+		}
+
+		//Backward Left
+		let blIndex = 1;
+		while (origin.getRank() - blIndex >= 1 && board.getFileAsNumber(origin.getFile()) - blIndex >= 1) {
+			const square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) - blIndex), origin.getRank() - blIndex);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+			blIndex++;
+		}
+
+		//Backward Right
+		let brIndex = 1;
+		while (origin.getRank() - brIndex >= 1 && board.getFileAsNumber(origin.getFile()) + brIndex <= 8) {
+			const square = new Square(board.getNumberAsFile(board.getFileAsNumber(origin.getFile()) + brIndex), origin.getRank() - brIndex);
+			if (board.getPieceOnSquare(square)) {
+				if (board.getPieceOnSquare(square)?.getColor() != this.color) {
+					possibleMoves.push(square);
+				}
+				break;
+			}
+			possibleMoves.push(square);
+			brIndex++;
+		}
+
+		return possibleMoves;
 	}
 }
 
