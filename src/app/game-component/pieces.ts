@@ -134,21 +134,69 @@ export class Knight extends Piece {
 	override getPossibleMoves(origin: Square, board: Board): Square[] {
 		const possibleMoves: Square[] = [];
 
+		//Forward Right Right
+		let forwardRightRightSquare = Board.getNextSquareForward(origin, this.color);
+		forwardRightRightSquare = forwardRightRightSquare != null ? Board.getNextSquareRight(forwardRightRightSquare, this.color) : null;
+		forwardRightRightSquare = forwardRightRightSquare != null ? Board.getNextSquareRight(forwardRightRightSquare, this.color) : null;
+		if (forwardRightRightSquare != null && (!board.getPieceOnSquare(forwardRightRightSquare) || board.getPieceOnSquare(forwardRightRightSquare)?.getColor() != this.color)) {
+			possibleMoves.push(forwardRightRightSquare);
+		}
+
 		//Forward Forward Right
+		let forwardForwardRightSquare = Board.getNextSquareForward(origin, this.color);
+		forwardForwardRightSquare = forwardForwardRightSquare != null ? Board.getNextSquareForward(forwardForwardRightSquare, this.color) : null;
+		forwardForwardRightSquare = forwardForwardRightSquare != null ? Board.getNextSquareRight(forwardForwardRightSquare, this.color) : null;
+		if (forwardForwardRightSquare != null && (!board.getPieceOnSquare(forwardForwardRightSquare) || board.getPieceOnSquare(forwardForwardRightSquare)?.getColor() != this.color)) {
+			possibleMoves.push(forwardForwardRightSquare);
+		}
 
 		//Forward Forward Left
+		let forwardForwardLeftSquare = Board.getNextSquareForward(origin, this.color);
+		forwardForwardLeftSquare = forwardForwardLeftSquare != null ? Board.getNextSquareForward(forwardForwardLeftSquare, this.color) : null;
+		forwardForwardLeftSquare = forwardForwardLeftSquare != null ? Board.getNextSquareLeft(forwardForwardLeftSquare, this.color) : null;
+		if (forwardForwardLeftSquare != null && (!board.getPieceOnSquare(forwardForwardLeftSquare) || board.getPieceOnSquare(forwardForwardLeftSquare)?.getColor() != this.color)) {
+			possibleMoves.push(forwardForwardLeftSquare);
+		}
 
 		//Forward Left Left
+		let forwardLeftLeftSquare = Board.getNextSquareForward(origin, this.color);
+		forwardLeftLeftSquare = forwardLeftLeftSquare != null ? Board.getNextSquareLeft(forwardLeftLeftSquare, this.color) : null;
+		forwardLeftLeftSquare = forwardLeftLeftSquare != null ? Board.getNextSquareLeft(forwardLeftLeftSquare, this.color) : null;
+		if (forwardLeftLeftSquare != null && (!board.getPieceOnSquare(forwardLeftLeftSquare) || board.getPieceOnSquare(forwardLeftLeftSquare)?.getColor() != this.color)) {
+			possibleMoves.push(forwardLeftLeftSquare);
+		}
 
 		//Backward Left Left
+		let backwardLeftLeftSquare = Board.getNextSquareBackward(origin, this.color);
+		backwardLeftLeftSquare = backwardLeftLeftSquare != null ? Board.getNextSquareLeft(backwardLeftLeftSquare, this.color) : null;
+		backwardLeftLeftSquare = backwardLeftLeftSquare != null ? Board.getNextSquareLeft(backwardLeftLeftSquare, this.color) : null;
+		if (backwardLeftLeftSquare != null && (!board.getPieceOnSquare(backwardLeftLeftSquare) || board.getPieceOnSquare(backwardLeftLeftSquare)?.getColor() != this.color)) {
+			possibleMoves.push(backwardLeftLeftSquare);
+		}
 
 		//Backward Backward Left
+		let backwardBackwardLeftSquare = Board.getNextSquareBackward(origin, this.color);
+		backwardBackwardLeftSquare = backwardBackwardLeftSquare != null ? Board.getNextSquareBackward(backwardBackwardLeftSquare, this.color) : null
+		backwardBackwardLeftSquare = backwardBackwardLeftSquare != null ? Board.getNextSquareLeft(backwardBackwardLeftSquare, this.color) : null;
+		if (backwardBackwardLeftSquare != null && (!board.getPieceOnSquare(backwardBackwardLeftSquare) || board.getPieceOnSquare(backwardBackwardLeftSquare)?.getColor() != this.color)) {
+			possibleMoves.push(backwardBackwardLeftSquare);
+		}
 
 		//Backward Backward Right
+		let backwardBackwardRightSquare = Board.getNextSquareBackward(origin, this.color);
+		backwardBackwardRightSquare = backwardBackwardRightSquare != null ? Board.getNextSquareBackward(backwardBackwardRightSquare, this.color) : null;
+		backwardBackwardRightSquare = backwardBackwardRightSquare != null ? Board.getNextSquareRight(backwardBackwardRightSquare, this.color) : null;
+		if (backwardBackwardRightSquare != null && (!board.getPieceOnSquare(backwardBackwardRightSquare) || board.getPieceOnSquare(backwardBackwardRightSquare)?.getColor() != this.color)) {
+			possibleMoves.push(backwardBackwardRightSquare);
+		}
 
 		//Backward Right Right
-
-		//Forward Right Right
+		let backwardRightRightSquare = Board.getNextSquareBackward(origin, this.color);
+		backwardRightRightSquare = backwardRightRightSquare != null ? Board.getNextSquareRight(backwardRightRightSquare, this.color) : null;
+		backwardRightRightSquare = backwardRightRightSquare != null ? Board.getNextSquareRight(backwardRightRightSquare!, this.color) : null;
+		if (backwardRightRightSquare != null && (!board.getPieceOnSquare(backwardRightRightSquare) || board.getPieceOnSquare(backwardRightRightSquare)?.getColor() != this.color)) {
+			possibleMoves.push(backwardRightRightSquare);
+		}
 
 		return possibleMoves;
 	}

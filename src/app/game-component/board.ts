@@ -74,51 +74,91 @@ export class Board {
 	}
 
 	public static getNextSquareForward(origin: Square, color: Color) : Square | null {
+		if (!origin.isValid()) {
+			return null;
+		}
+
 		const file = origin.getFile();
 		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
-		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+		const square = new Square(file, rank);
+		return square.isValid() ? new Square(file, rank) : null;
 	}
 
 	public static getNextSquareBackward(origin: Square, color: Color) : Square | null {
+		if (!origin.isValid()) {
+			return null;
+		}
+
 		const file = origin.getFile();
 		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
-		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+		const square = new Square(file, rank);
+		return square.isValid() ? new Square(file, rank) : null;
 	}
 
 	public static getNextSquareLeft(origin: Square, color: Color) : Square | null {
+		if (!origin.isValid()) {
+			return null;
+		}
+
 		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
 		const rank = origin.getRank();
-		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+		const square = new Square(file, rank);
+		return square.isValid() ? new Square(file, rank) : null;
 	}
 
 	public static getNextSquareRight(origin: Square, color: Color) : Square | null {
+		if (!origin.isValid()) {
+			return null;
+		}
+
 		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
 		const rank = origin.getRank();
-		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+		const square = new Square(file, rank);
+		return square.isValid() ? new Square(file, rank) : null;
 	}
 
 	public static getNextSquareForwardRight(origin: Square, color: Color) : Square | null {
+		if (!origin.isValid()) {
+			return null;
+		}
+
 		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
 		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
-		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+		const square = new Square(file, rank);
+		return square.isValid() ? new Square(file, rank) : null;
 	}
 
 	public static getNextSquareForwardLeft(origin: Square, color: Color) : Square | null {
+		if (!origin.isValid()) {
+			return null;
+		}
+
 		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
 		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
-		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+		const square = new Square(file, rank);
+		return square.isValid() ? new Square(file, rank) : null;
 	}
 
 	public static getNextSquareBackwardLeft(origin: Square, color: Color) : Square | null {
+		if (!origin.isValid()) {
+			return null;
+		}
+
 		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
 		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
-		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+		const square = new Square(file, rank);
+		return square.isValid() ? new Square(file, rank) : null;
 	}
 
 	public static getNextSquareBackwardRight(origin: Square, color: Color) : Square | null {
+		if (!origin.isValid()) {
+			return null;
+		}
+
 		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
 		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
-		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+		const square = new Square(file, rank);
+		return square.isValid() ? new Square(file, rank) : null;
 	}
 }
 
@@ -141,5 +181,9 @@ export class Square {
 
 	public toStringId() : string {
 		return this.file + this.rank;
+	}
+
+	public isValid() : boolean {
+		return Board.getFiles().indexOf(this.file) != -1 && Board.getRanks().indexOf(this.rank) != -1
 	}
 }
