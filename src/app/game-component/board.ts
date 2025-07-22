@@ -1,14 +1,11 @@
 import { Piece, Pawn, Rook, Knight, Bishop, Queen, King, Color } from './pieces';
 
 export class Board {
-	private static files: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-	private static ranks: number[] = [8, 7, 6, 5, 4, 3, 2, 1];
 	private pieces: Map<string, Piece> = new Map<string, Piece>();
+	private static files = ["A", "B", "C", "D", "E", "F", "G", "H"];
+	private static ranks = [8, 7, 6, 5, 4, 3, 2, 1];
 
 	constructor() {
-		//Create entries for every space
-		//Board.files.forEach( file => { Board.ranks.forEach( rank => { this.pieces.set(file + rank, null); } ) } );
-
 		//Fill in the starting spaces
 		this.pieces.set('A1', new Rook(Color.WHITE))
 		this.pieces.set('B1', new Knight(Color.WHITE))
@@ -47,29 +44,81 @@ export class Board {
 		this.pieces.set('H7', new Pawn(Color.BLACK))
 	}
 
-	getFiles() : string[] {
+	public static getFiles() : string[] {
 		return Board.files;
 	}
 
-	getFileAsNumber(file: string) : number {
+	public static getFileAsNumber(file: string) {
+		if (file !in Board.files) {
+			throw new Error("Unrecognized File");
+		}
+
 		return Board.files.indexOf(file) + 1;
 	}
 
-	getNumberAsFile(fileIndex: number) : string {
-		return fileIndex > 8 || fileIndex < 1 ? '' : Board.files[fileIndex - 1];
+	public static getNumberAsFile(file: number) {
+		return Board.files[file - 1];
 	}
 
-	getRanks() : number[] {
+	public static getRanks() : number[] {
 		return Board.ranks;
 	}
 
-	getPieceOnSquare(square: Square) : Piece | null | undefined {
+	public getPieceOnSquare(square: Square) : Piece | undefined {
 		return this.pieces.get(square.toStringId());
 	}
 
-	movePiece(origin: Square, destination: Square) {
+	public movePiece(origin: Square, destination: Square) {
 		this.pieces.set(destination.toStringId(), this.pieces.get(origin.toStringId())!)
 		this.pieces.delete(origin.toStringId());
+	}
+
+	public static getNextSquareForward(origin: Square, color: Color) : Square | null {
+		const file = origin.getFile();
+		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
+		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+	}
+
+	public static getNextSquareBackward(origin: Square, color: Color) : Square | null {
+		const file = origin.getFile();
+		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
+		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+	}
+
+	public static getNextSquareLeft(origin: Square, color: Color) : Square | null {
+		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
+		const rank = origin.getRank();
+		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+	}
+
+	public static getNextSquareRight(origin: Square, color: Color) : Square | null {
+		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
+		const rank = origin.getRank();
+		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+	}
+
+	public static getNextSquareForwardRight(origin: Square, color: Color) : Square | null {
+		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
+		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
+		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+	}
+
+	public static getNextSquareForwardLeft(origin: Square, color: Color) : Square | null {
+		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
+		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
+		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+	}
+
+	public static getNextSquareBackwardLeft(origin: Square, color: Color) : Square | null {
+		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
+		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
+		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
+	}
+
+	public static getNextSquareBackwardRight(origin: Square, color: Color) : Square | null {
+		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
+		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
+		return Board.files.indexOf(file) != -1 && Board.ranks.indexOf(rank) != -1 ? new Square(file, rank) : null;
 	}
 }
 
@@ -82,15 +131,15 @@ export class Square {
 		this.rank = rank;
 	}
 
-	getFile() : string {
+	public getFile() : string {
 		return this.file;
 	}
 
-	getRank() : number {
+	public getRank() : number {
 		return this.rank;
 	}
 
-	toStringId() : string {
+	public toStringId() : string {
 		return this.file + this.rank;
 	}
 }

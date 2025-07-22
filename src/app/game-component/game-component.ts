@@ -10,6 +10,7 @@ import { Board, Square } from './board';
 	styleUrl: './game-component.css'
 })
 export class GameComponent {
+	Board = Board;
 	board: Board = new Board();
 	playerColor: Color = Color.WHITE;
 	selectedSquare: Square | null = null;
@@ -35,14 +36,6 @@ export class GameComponent {
 				this.possibleMoves = pieceAtSquare.getPossibleMoves(this.selectedSquare, this.board);
 			}
 		}
-	}
-
-	getSquareColorClass(file: string, rank: number) : string {
-		if (file + rank == this.selectedSquare?.toStringId() && this.board.getPieceOnSquare(new Square(file, rank))?.getColor() == this.playerColor) {
-			return 'highlight'
-		}
-
-		return (this.board.getFileAsNumber(file) + rank) % 2 == 0 ? 'dark' : 'light'
 	}
 
 	getPieceOnSquare(file: string, rank: number) : Piece | null | undefined {

@@ -1,11 +1,11 @@
 <div class="board mt-5" (click)="$event.stopPropagation()">
-	@for (rank of board.getRanks(); track rank) {
+	@for (rank of Board.getRanks(); track rank) {
 		<div class="label fw-bold text-light">{{rank}}</div>
-		@for (file of board.getFiles(); track file) {
+		@for (file of Board.getFiles(); track file) {
 			<div class="square-container"
 				[attr.id]="file + rank"
 				(click)="onSquareClicked(file, rank)"
-				[ngClass]="(board.getFileAsNumber(file) + rank) % 2 == 0 ? 'dark' : 'light'"
+				[ngClass]="(Board.getFileAsNumber(file) + rank) % 2 == 0 ? 'dark' : 'light'"
 			>
 				<!--Add a highlight to the square if its active-->
 				<div *ngIf="selectedSquare?.getFile() == file && selectedSquare?.getRank() == rank && getPieceOnSquare(file, rank)?.getColor() == this.playerColor" class="highlight"  style="width: 100%; height: 100%;"></div>
