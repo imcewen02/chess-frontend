@@ -17,7 +17,7 @@ export abstract class Piece {
 		return this.imageSource;
 	}
 
-	abstract getPossibleMoves(origin: Square, board: Board) : Square[];
+	abstract getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean) : Square[];
 }
 
 export class Pawn extends Piece {
@@ -25,7 +25,7 @@ export class Pawn extends Piece {
 		super(color, color == Color.WHITE ? 'white_pawn.png' : 'black_pawn.png');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board): Square[] {
+	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
 		const possibleMoves: Square[] = [];
 
 		//Single forward
@@ -56,7 +56,7 @@ export class Pawn extends Piece {
 
 		//TODO: En passant
 
-		return possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
 	}
 }
 
@@ -65,7 +65,7 @@ export class Rook extends Piece {
 		super(color, color == Color.WHITE ? 'white_rook.png' : 'black_rook.png');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board): Square[] {
+	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
 		const possibleMoves: Square[] = [];
 
 		//Forward
@@ -122,7 +122,7 @@ export class Rook extends Piece {
 
 		//TODO: Castling
 
-		return possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
 	}
 }
 
@@ -131,7 +131,7 @@ export class Knight extends Piece {
 		super(color, color == Color.WHITE ? 'white_knight.png' : 'black_knight.png');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board): Square[] {
+	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
 		const possibleMoves: Square[] = [];
 
 		//Forward Right Right
@@ -198,7 +198,7 @@ export class Knight extends Piece {
 			possibleMoves.push(backwardRightRightSquare);
 		}
 
-		return possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
 	}
 }
 
@@ -207,7 +207,7 @@ export class Bishop extends Piece {
 		super(color, color == Color.WHITE ? 'white_bishop.png' : 'black_bishop.png');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board): Square[] {
+	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
 		const possibleMoves: Square[] = [];
 
 		//Forward Right
@@ -262,7 +262,7 @@ export class Bishop extends Piece {
 			currentBackwardRightSquare = Board.getNextSquareBackwardRight(currentBackwardRightSquare, this.color);
 		}
 
-		return possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
 	}
 }
 
@@ -271,15 +271,13 @@ export class Queen extends Piece {
 		super(color, color == Color.WHITE ? 'white_queen.png' : 'black_queen.png');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board): Square[] {
+	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
 		const possibleMoves: Square[] = [];
 
 		//Forward
 		let currentForwardSquare = Board.getNextSquareForward(origin, this.color);
 		while (currentForwardSquare != null) {
-			console.log(currentForwardSquare)
 			if (board.getPieceOnSquare(currentForwardSquare)) {
-				console.log("HERE")
 				if (board.getPieceOnSquare(currentForwardSquare)?.getColor() != this.color) {
 					possibleMoves.push(currentForwardSquare);
 				}
@@ -380,7 +378,7 @@ export class Queen extends Piece {
 			currentBackwardRightSquare = Board.getNextSquareBackwardRight(currentBackwardRightSquare, this.color);
 		}
 
-		return possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
 	}
 }
 
@@ -389,7 +387,7 @@ export class King extends Piece {
 		super(color, color == Color.WHITE ? 'white_king.png' : 'black_king.png');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board): Square[] {
+	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
 		const possibleMoves: Square[] = [];
 
 		//Forward
@@ -440,7 +438,7 @@ export class King extends Piece {
 			possibleMoves.push(backwardRightSquare);
 		}
 
-		return possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
 	}
 }
 

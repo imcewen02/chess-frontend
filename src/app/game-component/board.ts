@@ -160,6 +160,53 @@ export class Board {
 		const square = new Square(file, rank);
 		return square.isValid() ? new Square(file, rank) : null;
 	}
+
+	public isMoveLegal(origin: Square, destination: Square) : boolean {
+		const movingPiece = this.pieces.get(origin.toStringId())!;
+		const destinationPiece = this.pieces.get(destination.toStringId());
+
+		let movingPlayersKingPostion: Square;
+		if (movingPiece instanceof King) {
+			movingPlayersKingPostion = destination;
+		} else {
+			for (let squareId of this.pieces.keys()) {
+				const pieceAtSquare = this.pieces.get(squareId);
+				if (pieceAtSquare instanceof King && pieceAtSquare.getColor() == movingPiece?.getColor()) {
+					movingPlayersKingPostion = new Square(squareId[0], Number(squareId[1]));
+					break;
+				}
+			}
+		}
+
+		this.pieces.delete(origin.toStringId());
+		this.pieces.set(destination.toStringId(), movingPiece);
+
+		try {
+			for (let squareId of this.pieces.keys()) {
+				const pieceAtSquare = this.pieces.get(squareId);
+				if (pieceAtSquare?.getColor() != movingPiece?.getColor()) {
+					const opposingPiecesPossibleMoves = pieceAtSquare?.getPossibleMoves(new Square(squareId[0], Number(squareId[1])), this, false);
+					const opposingPieceCanAttackKing = opposingPiecesPossibleMoves?.some(move => move.getFile() == movingPlayersKingPostion.getFile() && move.getRank() == movingPlayersKingPostion.getRank());
+					if (opposingPieceCanAttackKing) {
+						return true;
+					}
+				}
+			}
+		} catch (err) {
+			//Catch all errors to always ensure the piece gets moved back
+			console.log(err)
+		} finally {
+			if (destinationPiece != null && destinationPiece != undefined) {
+				this.pieces.set(destination.toStringId(), destinationPiece);
+			} else {
+				this.pieces.delete(destination.toStringId());
+			}
+
+			this.pieces.set(origin.toStringId(), movingPiece);
+		}
+
+		return false;
+	}
 }
 
 export class Square {

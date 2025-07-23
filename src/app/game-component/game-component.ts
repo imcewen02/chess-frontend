@@ -32,9 +32,9 @@ export class GameComponent {
 			this.possibleMoves = [];
 
 			const pieceAtSquare = this.board.getPieceOnSquare(new Square(file, rank));
-			if (pieceAtSquare?.getColor() == this.playerColor) {
-				this.possibleMoves = pieceAtSquare.getPossibleMoves(this.selectedSquare, this.board);
-			}
+			//if (pieceAtSquare?.getColor() == this.playerColor) {
+				this.possibleMoves = pieceAtSquare!.getPossibleMoves(this.selectedSquare, this.board, true);
+			//}
 		}
 	}
 
