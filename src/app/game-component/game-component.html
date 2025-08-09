@@ -1,40 +1,42 @@
-<div class="board mt-5" (click)="$event.stopPropagation()">
-	@for (rank of Board.getRanks(); track rank) {
-		<div class="label fw-bold text-light">{{rank}}</div>
-		@for (file of Board.getFiles(); track file) {
-			<div class="square-container"
-				[attr.id]="file + rank"
-				(click)="onSquareClicked(file, rank)"
-				[ngClass]="(Board.getFileAsNumber(file) + rank) % 2 == 0 ? 'dark' : 'light'"
-			>
-				<!--Add a highlight to the square if its active-->
-				<div *ngIf="selectedSquare?.getFile() == file && selectedSquare?.getRank() == rank && getPieceOnSquare(file, rank)?.getColor() == this.playerColor" class="highlight"  style="width: 100%; height: 100%;"></div>
-
-				<!--Add a piece image to the square if a piece exists-->
-				<img *ngIf="getPieceOnSquare(file, rank)" 
-					class="piece-img"
-					[src]="getPieceOnSquare(file, rank)?.getImageSource()" 
-					[attr.alt]="getPieceOnSquare(file, rank)?.getImageSource()" 
-					draggable="false" 
+<div class="container" style="text-align: center;">
+	<div class="board mt-5" (click)="$event.stopPropagation()">
+		@for (rank of Board.getRanks(); track rank) {
+			<div class="label fw-bold text-light">{{rank}}</div>
+			@for (file of Board.getFiles(); track file) {
+				<div class="square-container"
+					[attr.id]="file + rank"
+					(click)="onSquareClicked(file, rank)"
+					[ngClass]="(Board.getFileAsNumber(file) + rank) % 2 == 0 ? 'dark' : 'light'"
 				>
+					<!--Add a highlight to the square if its active-->
+					<div *ngIf="selectedSquare?.getFile() == file && selectedSquare?.getRank() == rank && getPieceOnSquare(file, rank)?.getColor() == this.playerColor" class="highlight"  style="width: 100%; height: 100%;"></div>
 
-				<!--Add dot to the square if its a possible move-->
-				<div *ngIf="isSquareInPossibleMoves(file, rank)" class="available-move-container">
-					<div *ngIf="!getPieceOnSquare(file, rank)" class="available-move-dot highlight"></div>
-					<div *ngIf="getPieceOnSquare(file, rank)" class="available-capture-dot"></div>
+					<!--Add a piece image to the square if a piece exists-->
+					<img *ngIf="getPieceOnSquare(file, rank)" 
+						class="piece-img"
+						[src]="getPieceOnSquare(file, rank)?.getImageSource()" 
+						[attr.alt]="getPieceOnSquare(file, rank)?.getImageSource()" 
+						draggable="false" 
+					>
+
+					<!--Add dot to the square if its a possible move-->
+					<div *ngIf="isSquareInPossibleMoves(file, rank)" class="available-move-container">
+						<div *ngIf="!getPieceOnSquare(file, rank)" class="available-move-dot highlight"></div>
+						<div *ngIf="getPieceOnSquare(file, rank)" class="available-capture-dot"></div>
+					</div>
 				</div>
-			</div>
+			}
 		}
-	}
 
-	<!-- File labels -->
-	<div></div>
-	<div class="label fw-bold text-light">A</div>
-	<div class="label fw-bold text-light">B</div>
-	<div class="label fw-bold text-light">C</div>
-	<div class="label fw-bold text-light">D</div>
-	<div class="label fw-bold text-light">E</div>
-	<div class="label fw-bold text-light">F</div>
-	<div class="label fw-bold text-light">G</div>
-	<div class="label fw-bold text-light">H</div>
+		<!-- File labels -->
+		<div></div>
+		<div class="label fw-bold text-light">A</div>
+		<div class="label fw-bold text-light">B</div>
+		<div class="label fw-bold text-light">C</div>
+		<div class="label fw-bold text-light">D</div>
+		<div class="label fw-bold text-light">E</div>
+		<div class="label fw-bold text-light">F</div>
+		<div class="label fw-bold text-light">G</div>
+		<div class="label fw-bold text-light">H</div>
+	</div>
 </div>
