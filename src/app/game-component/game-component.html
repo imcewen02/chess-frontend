@@ -1,4 +1,4 @@
-<div class="container" style="text-align: center;">
+<div class="container-fluid d-flex justify-content-center">
 	<div class="board mt-5" (click)="$event.stopPropagation()">
 		@for (rank of Board.getRanks(); track rank) {
 			<div class="label fw-bold text-light">{{rank}}</div>
