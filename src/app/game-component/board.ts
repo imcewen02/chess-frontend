@@ -1,236 +1,147 @@
-import { Piece, Pawn, Rook, Knight, Bishop, Queen, King, Color } from './pieces';
+import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./pieces";
 
 export class Board {
-	private pieces: Map<string, Piece> = new Map<string, Piece>();
-	private static files = ["A", "B", "C", "D", "E", "F", "G", "H"];
-	private static ranks = [8, 7, 6, 5, 4, 3, 2, 1];
+	private squares: { [square: string]: Piece | null } = {};
 
-	constructor() {
-		//Fill in the starting spaces
-		this.pieces.set('A1', new Rook(Color.WHITE))
-		this.pieces.set('B1', new Knight(Color.WHITE))
-		this.pieces.set('C1', new Bishop(Color.WHITE))
-		this.pieces.set('D1', new Queen(Color.WHITE))
-		this.pieces.set('E1', new King(Color.WHITE))
-		this.pieces.set('F1', new Bishop(Color.WHITE))
-		this.pieces.set('G1', new Knight(Color.WHITE))
-		this.pieces.set('H1', new Rook(Color.WHITE))
+	private files = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+	private ranks = [8, 7, 6, 5, 4, 3, 2, 1];
 
-		this.pieces.set('A2', new Pawn(Color.WHITE))
-		this.pieces.set('B2', new Pawn(Color.WHITE))
-		this.pieces.set('C2', new Pawn(Color.WHITE))
-		this.pieces.set('D2', new Pawn(Color.WHITE))
-		this.pieces.set('E2', new Pawn(Color.WHITE))
-		this.pieces.set('F2', new Pawn(Color.WHITE))
-		this.pieces.set('G2', new Pawn(Color.WHITE))
-		this.pieces.set('H2', new Pawn(Color.WHITE))
-
-		this.pieces.set('A8', new Rook(Color.BLACK))
-		this.pieces.set('B8', new Knight(Color.BLACK))
-		this.pieces.set('C8', new Bishop(Color.BLACK))
-		this.pieces.set('D8', new Queen(Color.BLACK))
-		this.pieces.set('E8', new King(Color.BLACK))
-		this.pieces.set('F8', new Bishop(Color.BLACK))
-		this.pieces.set('G8', new Knight(Color.BLACK))
-		this.pieces.set('H8', new Rook(Color.BLACK))
-
-		this.pieces.set('A7', new Pawn(Color.BLACK))
-		this.pieces.set('B7', new Pawn(Color.BLACK))
-		this.pieces.set('C7', new Pawn(Color.BLACK))
-		this.pieces.set('D7', new Pawn(Color.BLACK))
-		this.pieces.set('E7', new Pawn(Color.BLACK))
-		this.pieces.set('F7', new Pawn(Color.BLACK))
-		this.pieces.set('G7', new Pawn(Color.BLACK))
-		this.pieces.set('H7', new Pawn(Color.BLACK))
-	}
-
-	public static getFiles() : string[] {
-		return Board.files;
-	}
-
-	public static getFileAsNumber(file: string) {
-		if (file !in Board.files) {
-			throw new Error("Unrecognized File");
+	constructor(playerColor: string, boardData: { [square: string]: any }) {
+		if (playerColor == 'black') {
+			this.files.reverse();
+			this.ranks.reverse();
 		}
 
-		return Board.files.indexOf(file) + 1;
-	}
+		for (const squareId of Object.keys(boardData)) {
+			if (boardData[squareId] == null) {
+				this.squares[squareId] = null;
+				continue;
+			}
 
-	public static getNumberAsFile(file: number) {
-		return Board.files[file - 1];
-	}
+			let piece: Piece;
+			switch(boardData[squareId].name) {
+				case 'pawn': piece = new Pawn(boardData[squareId].color); break;
+				case 'rook': piece = new Rook(boardData[squareId].color); break;
+				case 'knight': piece = new Knight(boardData[squareId].color); break;
+				case 'bishop': piece = new Bishop(boardData[squareId].color); break;
+				case 'queen': piece = new Queen(boardData[squareId].color); break;
+				case 'king': piece = new King(boardData[squareId].color); break;
+			}
 
-	public static getRanks() : number[] {
-		return Board.ranks;
-	}
-
-	public getPieceOnSquare(square: Square) : Piece | undefined {
-		return this.pieces.get(square.toStringId());
-	}
-
-	public movePiece(origin: Square, destination: Square) {
-		this.pieces.set(destination.toStringId(), this.pieces.get(origin.toStringId())!)
-		this.pieces.delete(origin.toStringId());
-	}
-
-	public static getNextSquareForward(origin: Square, color: Color) : Square | null {
-		if (!origin.isValid()) {
-			return null;
+			this.squares[squareId] = piece!;
 		}
-
-		const file = origin.getFile();
-		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
-		const square = new Square(file, rank);
-		return square.isValid() ? new Square(file, rank) : null;
 	}
 
-	public static getNextSquareBackward(origin: Square, color: Color) : Square | null {
-		if (!origin.isValid()) {
-			return null;
-		}
-
-		const file = origin.getFile();
-		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
-		const square = new Square(file, rank);
-		return square.isValid() ? new Square(file, rank) : null;
+	public getFileAsNumber(file: string): number {
+		return this.files.indexOf(file) + 1;
 	}
 
-	public static getNextSquareLeft(origin: Square, color: Color) : Square | null {
-		if (!origin.isValid()) {
-			return null;
-		}
-
-		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
-		const rank = origin.getRank();
-		const square = new Square(file, rank);
-		return square.isValid() ? new Square(file, rank) : null;
+	public getNumberAsFile(file: number): string {
+		return this.files[file - 1];
 	}
 
-	public static getNextSquareRight(origin: Square, color: Color) : Square | null {
-		if (!origin.isValid()) {
-			return null;
-		}
-
-		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
-		const rank = origin.getRank();
-		const square = new Square(file, rank);
-		return square.isValid() ? new Square(file, rank) : null;
+	public getFiles(): string[] {
+		return this.files;
 	}
 
-	public static getNextSquareForwardRight(origin: Square, color: Color) : Square | null {
-		if (!origin.isValid()) {
-			return null;
-		}
-
-		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
-		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
-		const square = new Square(file, rank);
-		return square.isValid() ? new Square(file, rank) : null;
+	public getRanks(): number[] {
+		return this.ranks;
 	}
 
-	public static getNextSquareForwardLeft(origin: Square, color: Color) : Square | null {
-		if (!origin.isValid()) {
-			return null;
-		}
-
-		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
-		const rank = origin.getRank() + (color == Color.WHITE ? 1 : -1);
-		const square = new Square(file, rank);
-		return square.isValid() ? new Square(file, rank) : null;
+	public getPieceOnSquare(file: string, rank: number) : Piece | null {
+		return this.squares[`${file}${rank.toString()}`] ?? null;
 	}
 
-	public static getNextSquareBackwardLeft(origin: Square, color: Color) : Square | null {
-		if (!origin.isValid()) {
-			return null;
-		}
-
-		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? -1 : 1));
-		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
-		const square = new Square(file, rank);
-		return square.isValid() ? new Square(file, rank) : null;
+	public getNextSquareForward(originFile: string, originRank: number, color: string) : {file: string, rank: number} | null {
+		const file = originFile;
+		const rank = originRank + (color == 'white' ? 1 : -1);
+		return this.squareIdValid(file, rank) ? {file, rank} : null;
 	}
 
-	public static getNextSquareBackwardRight(origin: Square, color: Color) : Square | null {
-		if (!origin.isValid()) {
-			return null;
-		}
-
-		const file = Board.getNumberAsFile(Board.getFileAsNumber(origin.getFile()) + (color == Color.WHITE ? 1 : -1));
-		const rank = origin.getRank() + (color == Color.WHITE ? -1 : 1);
-		const square = new Square(file, rank);
-		return square.isValid() ? new Square(file, rank) : null;
+	public getNextSquareBackward(originFile: string, originRank: number, color: string) : {file: string, rank: number} | null {
+		const file = originFile;
+		const rank = originRank + (color == 'white' ? -1 : 1);
+		return this.squareIdValid(file, rank) ? {file, rank} : null;
 	}
 
-	public isMoveLegal(origin: Square, destination: Square) : boolean {
-		const movingPiece = this.pieces.get(origin.toStringId())!;
-		const destinationPiece = this.pieces.get(destination.toStringId());
+	public getNextSquareLeft(originFile: string, originRank: number, color: string) : {file: string, rank: number} | null {
+		const file = this.getNumberAsFile(this.getFileAsNumber(originFile) + (color == 'white' ? -1 : 1));
+		const rank = originRank;
+		return this.squareIdValid(file, rank) ? {file, rank} : null;
+	}
 
-		let movingPlayersKingPostion: Square;
-		if (movingPiece instanceof King) {
-			movingPlayersKingPostion = destination;
+	public getNextSquareRight(originFile: string, originRank: number, color: string) : {file: string, rank: number} | null {
+		const file = this.getNumberAsFile(this.getFileAsNumber(originFile) + (color == 'white' ? 1 : -1));
+		const rank = originRank;
+		return this.squareIdValid(file, rank) ? {file, rank} : null;
+	}
+
+	public getNextSquareForwardRight(originFile: string, originRank: number, color: string) : {file: string, rank: number} | null {
+		const file = this.getNumberAsFile(this.getFileAsNumber(originFile) + (color == 'white' ? 1 : -1));
+		const rank = originRank + (color == 'white' ? 1 : -1);
+		return this.squareIdValid(file, rank) ? {file, rank} : null;
+	}
+
+	public getNextSquareForwardLeft(originFile: string, originRank: number, color: string) : {file: string, rank: number} | null {
+		const file = this.getNumberAsFile(this.getFileAsNumber(originFile) + (color == 'white' ? -1 : 1));
+		const rank = originRank + (color == 'white' ? 1 : -1);
+		return this.squareIdValid(file, rank) ? {file, rank} : null;
+	}
+
+	public getNextSquareBackwardLeft(originFile: string, originRank: number, color: string) : {file: string, rank: number} | null {
+		const file = this.getNumberAsFile(this.getFileAsNumber(originFile) + (color == 'white' ? -1 : 1));
+		const rank = originRank + (color == 'white' ? -1 : 1);
+		return this.squareIdValid(file, rank) ? {file, rank} : null;
+	}
+
+	public getNextSquareBackwardRight(originFile: string, originRank: number, color: string) : {file: string, rank: number} | null {
+		const file = this.getNumberAsFile(this.getFileAsNumber(originFile) + (color == 'white' ? 1 : -1));
+		const rank = originRank + (color == 'white' ? -1 : 1);
+		return this.squareIdValid(file, rank) ? {file, rank} : null;
+	}
+
+	public squareIdValid(file: string, rank: number): boolean {
+		return this.files.includes(file) && this.ranks.includes(rank);
+	}
+
+	public isMoveIllegal(originFile: string, originRank: number, destinationFile: string, destinationRank: number) : boolean {
+		console.log(originFile, originRank)
+
+		const movingPiece = this.squares[originFile + originRank]!;
+		const destinationPiece = this.squares[destinationFile + destinationRank];
+
+		let movingPlayersKingPostion: {file: string, rank: number};
+		if (movingPiece.getName() == 'king') {
+			movingPlayersKingPostion = {file: destinationFile, rank: destinationRank};
 		} else {
-			for (let squareId of this.pieces.keys()) {
-				const pieceAtSquare = this.pieces.get(squareId);
-				if (pieceAtSquare instanceof King && pieceAtSquare.getColor() == movingPiece?.getColor()) {
-					movingPlayersKingPostion = new Square(squareId[0], Number(squareId[1]));
+			for (const squareId of Object.keys(this.squares)) {
+				const pieceAtSquare = this.getPieceOnSquare(squareId[0], Number(squareId[1]));
+				if (pieceAtSquare?.getName() == 'king' && pieceAtSquare.getColor() == movingPiece.getColor()) {
+					movingPlayersKingPostion = {file: squareId[0], rank: Number(squareId[1])};
 					break;
 				}
 			}
 		}
 
-		this.pieces.delete(origin.toStringId());
-		this.pieces.set(destination.toStringId(), movingPiece);
+		this.squares[originFile + originRank] = null;
+		this.squares[destinationFile + destinationRank] = movingPiece;
 
-		try {
-			for (let squareId of this.pieces.keys()) {
-				const pieceAtSquare = this.pieces.get(squareId);
-				if (pieceAtSquare?.getColor() != movingPiece?.getColor()) {
-					const opposingPiecesPossibleMoves = pieceAtSquare?.getPossibleMoves(new Square(squareId[0], Number(squareId[1])), this, false);
-					const opposingPieceCanAttackKing = opposingPiecesPossibleMoves?.some(move => move.getFile() == movingPlayersKingPostion.getFile() && move.getRank() == movingPlayersKingPostion.getRank());
-					if (opposingPieceCanAttackKing) {
-						return true;
-					}
+		let moveIllegal = false;
+		for (const squareId of Object.keys(this.squares)) {
+			const pieceAtSquare = this.getPieceOnSquare(squareId[0], Number(squareId[1]));
+			if (pieceAtSquare != null && pieceAtSquare?.getColor() != movingPiece?.getColor()) {
+				console.log("Moving Piece: " + movingPiece.getColor() + "_" + movingPiece.getName() + " : Checking Piece: " + pieceAtSquare.getColor() + "_" + pieceAtSquare.getName())
+				const opposingPiecesPossibleMoves = pieceAtSquare.getPossibleMovesFromSquare(squareId[0], Number(squareId[1]), this, false)
+				const opposingPieceCanAttackKing = opposingPiecesPossibleMoves?.some(move => move.file == movingPlayersKingPostion.file && move.rank == movingPlayersKingPostion.rank);
+				if (opposingPieceCanAttackKing) {
+					moveIllegal = true;
 				}
 			}
-		} catch (err) {
-			//Catch all errors to always ensure the piece gets moved back
-			console.log(err)
-		} finally {
-			if (destinationPiece != null && destinationPiece != undefined) {
-				this.pieces.set(destination.toStringId(), destinationPiece);
-			} else {
-				this.pieces.delete(destination.toStringId());
-			}
-
-			this.pieces.set(origin.toStringId(), movingPiece);
 		}
 
-		return false;
-	}
-}
+		this.squares[originFile + originRank] = movingPiece;
+		this.squares[destinationFile + destinationRank] = destinationPiece;
 
-export class Square {
-	private file: string;
-	private rank: number;
-
-	constructor(file: string, rank: number) {
-		this.file = file;
-		this.rank = rank;
-	}
-
-	public getFile() : string {
-		return this.file;
-	}
-
-	public getRank() : number {
-		return this.rank;
-	}
-
-	public toStringId() : string {
-		return this.file + this.rank;
-	}
-
-	public isValid() : boolean {
-		return Board.getFiles().indexOf(this.file) != -1 && Board.getRanks().indexOf(this.rank) != -1
+		return moveIllegal;
 	}
 }

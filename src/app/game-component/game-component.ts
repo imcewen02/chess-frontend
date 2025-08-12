@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
-import { Color, Piece } from './pieces';
-import { Board, Square } from './board';
+import { Component, ChangeDetectorRef, HostListener } from '@angular/core';
+import { io, Socket } from 'socket.io-client';
+import { Board } from './board';
 
 @Component({
 	selector: 'app-game-component',
@@ -11,38 +11,76 @@ import { Board, Square } from './board';
 })
 export class GameComponent {
 	Board = Board;
-	board: Board = new Board();
-	playerColor: Color = Color.WHITE;
-	selectedSquare: Square | null = null;
-	possibleMoves: Square[] = [];
 
-	@HostListener('document:click', ['$event'])
-	onClick(event: MouseEvent) {
+  	protected socket: Socket;
+
+	protected gameData: GameData | null = null;
+	protected playerColor: string = '';
+
+	protected selectedSquare: string | null = null;
+	protected possibleMoves: {file: string, rank: number}[] | undefined = [];
+
+	constructor(private cdr: ChangeDetectorRef) {
+		this.socket = io('http://localhost:3000');
+		this.socket.on('connect', () => { this.onConnectToServer() });
+		this.socket.on('gameUpdate', (data) => { this.onGameUpdate(data) })
+		this.socket.on('disconnect', () => { cdr.detectChanges() });
+	}
+
+	/***************************
+	Server Event Listeners Start
+	***************************/
+	onConnectToServer() {
+		this.socket.emit('joinQueue');
+		this.cdr.detectChanges();
+	}
+
+	onGameUpdate(data: any) {
+		this.playerColor = data.whitePlayer == this.socket.id ? 'white' : 'black';
+
+		this.gameData = {
+			uuid: data.uuid,
+			whitePlayer: data.whitePlayer,
+			blackPlayer: data.blackPlayer,
+			board: new Board(this.playerColor, data.board.squares)
+		};
+
+		this.cdr.detectChanges();
+	}
+
+	onDisconnectFromServer() {
+		this.cdr.detectChanges();
+	}
+	/*************************
+	Server Event Listeners End
+	*************************/
+
+	@HostListener('document:click')
+	onClick() {
 		this.selectedSquare = null;
 		this.possibleMoves = [];
 	}
 
 	onSquareClicked(file: string, rank: number) {
-		if (this.isSquareInPossibleMoves(file, rank)) {
-			this.board.movePiece(this.selectedSquare!, new Square(file, rank));
-			this.selectedSquare = null;
-			this.possibleMoves = [];
-		} else {
-			this.selectedSquare = new Square(file, rank);
-			this.possibleMoves = [];
-
-			const pieceAtSquare = this.board.getPieceOnSquare(new Square(file, rank));
-			//if (pieceAtSquare?.getColor() == this.playerColor) {
-				this.possibleMoves = pieceAtSquare!.getPossibleMoves(this.selectedSquare, this.board, true);
-			//}
+		if (this.possibleMovesContainsSquare(file, rank)) {
+			this.socket.emit('movePiece', {uuid: this.gameData?.uuid, origin: this.selectedSquare, destination: file + rank});
 		}
+
+		const pieceOnSquare = this.gameData?.board.getPieceOnSquare(file, rank);
+		this.selectedSquare = pieceOnSquare?.getColor() == this.playerColor ? file + rank : null;
+		this.possibleMoves = pieceOnSquare?.getColor() == this.playerColor ? pieceOnSquare?.getPossibleMovesFromSquare(file, rank, this.gameData?.board!, true) : [];
+
+		console.log(this.possibleMoves)
 	}
 
-	getPieceOnSquare(file: string, rank: number) : Piece | null | undefined {
-		return this.board.getPieceOnSquare(new Square(file, rank))
+	possibleMovesContainsSquare(file: string, rank: number): boolean {
+		return this.possibleMoves?.some(square => square.file === file && square.rank === rank) ?? false;
 	}
+}
 
-	isSquareInPossibleMoves(file: string, rank: number) : boolean {
-		return this.possibleMoves.some( square => square.getFile() == file && square.getRank() == rank);
-	}
+type GameData = {
+	uuid: string;
+	whitePlayer: string;
+	blackPlayer: string;
+	board: Board;
 }

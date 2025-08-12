@@ -1,448 +1,447 @@
-import { Board, Square } from "./board";
+import { Board } from "./board";
 
 export abstract class Piece {
-	protected color: Color;
-	protected imageSource: string;
+	protected color: 'white' | 'black';
+	protected name: 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';
 	
-	constructor(color: Color, imageSource: string) {
+	constructor(color: 'white' | 'black', name: 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king') {
 		this.color = color;
-		this.imageSource = imageSource;
+		this.name = name;
 	}
 
-	getColor(): Color {
+	getColor(): 'white' | 'black' {
 		return this.color;
 	}
 
-	getImageSource(): string {
-		return this.imageSource;
+	getName(): 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king' {
+		return this.name;
 	}
 
-	abstract getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean) : Square[];
+	getImageSource(): string {
+		return this.color + '_' + this.name + '.png';
+	}
+
+	abstract getPossibleMovesFromSquare(file: string, rank: number, board: Board, checkForCausingMate: boolean) : {file: string, rank: number}[];
 }
 
 export class Pawn extends Piece {
-	constructor(color: Color) {
-		super(color, color == Color.WHITE ? 'white_pawn.png' : 'black_pawn.png');
+	constructor(color: 'white' | 'black') {
+		super(color, 'pawn');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
-		const possibleMoves: Square[] = [];
+	override getPossibleMovesFromSquare(file: string, rank: number, board: Board, checkForCausingMate: boolean): {file: string, rank: number}[] {
+		const possibleMoves: {file: string, rank: number}[] = [];
 
 		//Single forward
-		const forwardSquare = Board.getNextSquareForward(origin, this.color);
-		if (forwardSquare != null && !board.getPieceOnSquare(forwardSquare)) {
-			possibleMoves.push(forwardSquare);
+		const forwardSquare = board.getNextSquareForward(file, rank, this.color);
+		if (forwardSquare && !board.getPieceOnSquare(forwardSquare.file, forwardSquare.rank)) {
+			possibleMoves.push({file: forwardSquare.file, rank: forwardSquare.rank});
 
 			//Double Forward
-			if ((this.color == Color.WHITE && origin.getRank() == 2) || (this.color == Color.BLACK && origin.getRank() == 7)) {
-				const doubleForwardSquare = Board.getNextSquareForward(forwardSquare, this.color);
-				if (doubleForwardSquare != null && !board.getPieceOnSquare(doubleForwardSquare)) {
+			if ((this.color == 'white' && rank == 2) || (this.color == 'black' && rank == 7)) {
+				const doubleForwardSquare = board.getNextSquareForward(forwardSquare.file, forwardSquare.rank, this.color);
+				if (doubleForwardSquare && !board.getPieceOnSquare(doubleForwardSquare.file, doubleForwardSquare.rank)) {
 					possibleMoves.push(doubleForwardSquare);
 				}
 			}
 		}
 
 		//Capture Left
-		const captureLeftSquare = Board.getNextSquareForwardLeft(origin, this.color);
-		if (captureLeftSquare != null && board.getPieceOnSquare(captureLeftSquare) && board.getPieceOnSquare(captureLeftSquare)?.getColor() != this.color) {
+		const captureLeftSquare = board.getNextSquareForwardLeft(file, rank, this.color);
+		if (captureLeftSquare != null && board.getPieceOnSquare(captureLeftSquare.file, captureLeftSquare.rank) != null && board.getPieceOnSquare(captureLeftSquare.file, captureLeftSquare.rank)?.getColor() != this.color) {
 			possibleMoves.push(captureLeftSquare);
 		}
 	
 		//Capture Right
-		const captureRightSquare = Board.getNextSquareForwardRight(origin, this.color);
-		if (captureRightSquare != null && board.getPieceOnSquare(captureRightSquare) && board.getPieceOnSquare(captureRightSquare)?.getColor() != this.color) {
+		const captureRightSquare = board.getNextSquareForwardRight(file, rank, this.color);
+		if (captureRightSquare != null && board.getPieceOnSquare(captureRightSquare.file, captureRightSquare.rank) != null && board.getPieceOnSquare(captureRightSquare.file, captureRightSquare.rank)?.getColor() != this.color) {
 			possibleMoves.push(captureRightSquare);
 		}
 
 		//TODO: En passant
 
-		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveIllegal(file, rank, move.file, move.rank)) : possibleMoves;
 	}
 }
 
 export class Rook extends Piece {
-	constructor(color: Color) {
-		super(color, color == Color.WHITE ? 'white_rook.png' : 'black_rook.png');
+	constructor(color: 'white' | 'black') {
+		super(color, 'rook');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
-		const possibleMoves: Square[] = [];
+	override getPossibleMovesFromSquare(file: string, rank: number, board: Board, checkForCausingMate: boolean): {file: string, rank: number}[] {
+		const possibleMoves: {file: string, rank: number}[] = [];
 
 		//Forward
-		let currentForwardSquare = Board.getNextSquareForward(origin, this.color);
+		let currentForwardSquare = board.getNextSquareForward(file, rank, this.color);
 		while (currentForwardSquare != null) {
-			if (board.getPieceOnSquare(currentForwardSquare)) {
-				if (board.getPieceOnSquare(currentForwardSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentForwardSquare.file, currentForwardSquare.rank)) {
+				if (board.getPieceOnSquare(currentForwardSquare.file, currentForwardSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentForwardSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentForwardSquare);
-			currentForwardSquare = Board.getNextSquareForward(currentForwardSquare, this.color);
+			currentForwardSquare = board.getNextSquareForward(currentForwardSquare.file, currentForwardSquare.rank, this.color);
 		}
 
 		//Backward
-		let currentBackwardSquare = Board.getNextSquareBackward(origin, this.color);
+		let currentBackwardSquare = board.getNextSquareBackward(file, rank, this.color);
 		while (currentBackwardSquare != null) {
-			if (board.getPieceOnSquare(currentBackwardSquare)) {
-				if (board.getPieceOnSquare(currentBackwardSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentBackwardSquare.file, currentBackwardSquare.rank)) {
+				if (board.getPieceOnSquare(currentBackwardSquare.file, currentBackwardSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentBackwardSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentBackwardSquare);
-			currentBackwardSquare = Board.getNextSquareBackward(currentBackwardSquare, this.color);
+			currentBackwardSquare = board.getNextSquareBackward(currentBackwardSquare.file, currentBackwardSquare.rank, this.color);
 		}
 
 		//Left
-		let currentLeftSquare = Board.getNextSquareLeft(origin, this.color);
+		let currentLeftSquare = board.getNextSquareLeft(file, rank, this.color);
 		while (currentLeftSquare != null) {
-			if (board.getPieceOnSquare(currentLeftSquare)) {
-				if (board.getPieceOnSquare(currentLeftSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentLeftSquare.file, currentLeftSquare.rank)) {
+				if (board.getPieceOnSquare(currentLeftSquare.file, currentLeftSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentLeftSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentLeftSquare);
-			currentLeftSquare = Board.getNextSquareLeft(currentLeftSquare, this.color);
+			currentLeftSquare = board.getNextSquareLeft(currentLeftSquare.file, currentLeftSquare.rank, this.color);
 		}
 
 		//Right
-		let currentRightSquare = Board.getNextSquareRight(origin, this.color);
+		let currentRightSquare = board.getNextSquareRight(file, rank, this.color);
 		while (currentRightSquare != null) {
-			if (board.getPieceOnSquare(currentRightSquare)) {
-				if (board.getPieceOnSquare(currentRightSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentRightSquare.file, currentRightSquare.rank)) {
+				if (board.getPieceOnSquare(currentRightSquare.file, currentRightSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentRightSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentRightSquare);
-			currentRightSquare = Board.getNextSquareRight(currentRightSquare, this.color);
+			currentRightSquare = board.getNextSquareRight(currentRightSquare.file, currentRightSquare.rank, this.color);
 		}
 
 		//TODO: Castling
 
-		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveIllegal(file, rank, move.file, move.rank)) : possibleMoves;
 	}
 }
 
 export class Knight extends Piece {
-	constructor(color: Color) {
-		super(color, color == Color.WHITE ? 'white_knight.png' : 'black_knight.png');
+	constructor(color: 'white' | 'black') {
+		super(color, 'knight');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
-		const possibleMoves: Square[] = [];
+	override getPossibleMovesFromSquare(file: string, rank: number, board: Board, checkForCausingMate: boolean): {file: string, rank: number}[] {
+		const possibleMoves: {file: string, rank: number}[] = [];
 
 		//Forward Right Right
-		let forwardRightRightSquare = Board.getNextSquareForward(origin, this.color);
-		forwardRightRightSquare = forwardRightRightSquare != null ? Board.getNextSquareRight(forwardRightRightSquare, this.color) : null;
-		forwardRightRightSquare = forwardRightRightSquare != null ? Board.getNextSquareRight(forwardRightRightSquare, this.color) : null;
-		if (forwardRightRightSquare != null && (!board.getPieceOnSquare(forwardRightRightSquare) || board.getPieceOnSquare(forwardRightRightSquare)?.getColor() != this.color)) {
+		let forwardRightRightSquare = board.getNextSquareForward(file, rank, this.color);
+		forwardRightRightSquare = forwardRightRightSquare != null ? board.getNextSquareRight(forwardRightRightSquare.file, forwardRightRightSquare.rank, this.color) : null;
+		forwardRightRightSquare = forwardRightRightSquare != null ? board.getNextSquareRight(forwardRightRightSquare.file, forwardRightRightSquare.rank, this.color) : null;
+		if (forwardRightRightSquare != null && (!board.getPieceOnSquare(forwardRightRightSquare.file, forwardRightRightSquare.rank) || board.getPieceOnSquare(forwardRightRightSquare.file, forwardRightRightSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(forwardRightRightSquare);
 		}
 
 		//Forward Forward Right
-		let forwardForwardRightSquare = Board.getNextSquareForward(origin, this.color);
-		forwardForwardRightSquare = forwardForwardRightSquare != null ? Board.getNextSquareForward(forwardForwardRightSquare, this.color) : null;
-		forwardForwardRightSquare = forwardForwardRightSquare != null ? Board.getNextSquareRight(forwardForwardRightSquare, this.color) : null;
-		if (forwardForwardRightSquare != null && (!board.getPieceOnSquare(forwardForwardRightSquare) || board.getPieceOnSquare(forwardForwardRightSquare)?.getColor() != this.color)) {
+		let forwardForwardRightSquare = board.getNextSquareForward(file, rank, this.color);
+		forwardForwardRightSquare = forwardForwardRightSquare != null ? board.getNextSquareForward(forwardForwardRightSquare.file, forwardForwardRightSquare.rank, this.color) : null;
+		forwardForwardRightSquare = forwardForwardRightSquare != null ? board.getNextSquareRight(forwardForwardRightSquare.file, forwardForwardRightSquare.rank, this.color) : null;
+		if (forwardForwardRightSquare != null && (!board.getPieceOnSquare(forwardForwardRightSquare.file, forwardForwardRightSquare.rank) || board.getPieceOnSquare(forwardForwardRightSquare.file, forwardForwardRightSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(forwardForwardRightSquare);
 		}
 
 		//Forward Forward Left
-		let forwardForwardLeftSquare = Board.getNextSquareForward(origin, this.color);
-		forwardForwardLeftSquare = forwardForwardLeftSquare != null ? Board.getNextSquareForward(forwardForwardLeftSquare, this.color) : null;
-		forwardForwardLeftSquare = forwardForwardLeftSquare != null ? Board.getNextSquareLeft(forwardForwardLeftSquare, this.color) : null;
-		if (forwardForwardLeftSquare != null && (!board.getPieceOnSquare(forwardForwardLeftSquare) || board.getPieceOnSquare(forwardForwardLeftSquare)?.getColor() != this.color)) {
+		let forwardForwardLeftSquare = board.getNextSquareForward(file, rank, this.color);
+		forwardForwardLeftSquare = forwardForwardLeftSquare != null ? board.getNextSquareForward(forwardForwardLeftSquare.file, forwardForwardLeftSquare.rank, this.color) : null;
+		forwardForwardLeftSquare = forwardForwardLeftSquare != null ? board.getNextSquareLeft(forwardForwardLeftSquare.file, forwardForwardLeftSquare.rank, this.color) : null;
+		if (forwardForwardLeftSquare != null && (!board.getPieceOnSquare(forwardForwardLeftSquare.file, forwardForwardLeftSquare.rank) || board.getPieceOnSquare(forwardForwardLeftSquare.file, forwardForwardLeftSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(forwardForwardLeftSquare);
 		}
 
 		//Forward Left Left
-		let forwardLeftLeftSquare = Board.getNextSquareForward(origin, this.color);
-		forwardLeftLeftSquare = forwardLeftLeftSquare != null ? Board.getNextSquareLeft(forwardLeftLeftSquare, this.color) : null;
-		forwardLeftLeftSquare = forwardLeftLeftSquare != null ? Board.getNextSquareLeft(forwardLeftLeftSquare, this.color) : null;
-		if (forwardLeftLeftSquare != null && (!board.getPieceOnSquare(forwardLeftLeftSquare) || board.getPieceOnSquare(forwardLeftLeftSquare)?.getColor() != this.color)) {
+		let forwardLeftLeftSquare = board.getNextSquareForward(file, rank, this.color);
+		forwardLeftLeftSquare = forwardLeftLeftSquare != null ? board.getNextSquareLeft(forwardLeftLeftSquare.file, forwardLeftLeftSquare.rank, this.color) : null;
+		forwardLeftLeftSquare = forwardLeftLeftSquare != null ? board.getNextSquareLeft(forwardLeftLeftSquare.file, forwardLeftLeftSquare.rank, this.color) : null;
+		if (forwardLeftLeftSquare != null && (!board.getPieceOnSquare(forwardLeftLeftSquare.file, forwardLeftLeftSquare.rank) || board.getPieceOnSquare(forwardLeftLeftSquare.file, forwardLeftLeftSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(forwardLeftLeftSquare);
 		}
 
 		//Backward Left Left
-		let backwardLeftLeftSquare = Board.getNextSquareBackward(origin, this.color);
-		backwardLeftLeftSquare = backwardLeftLeftSquare != null ? Board.getNextSquareLeft(backwardLeftLeftSquare, this.color) : null;
-		backwardLeftLeftSquare = backwardLeftLeftSquare != null ? Board.getNextSquareLeft(backwardLeftLeftSquare, this.color) : null;
-		if (backwardLeftLeftSquare != null && (!board.getPieceOnSquare(backwardLeftLeftSquare) || board.getPieceOnSquare(backwardLeftLeftSquare)?.getColor() != this.color)) {
+		let backwardLeftLeftSquare = board.getNextSquareBackward(file, rank, this.color);
+		backwardLeftLeftSquare = backwardLeftLeftSquare != null ? board.getNextSquareLeft(backwardLeftLeftSquare.file, backwardLeftLeftSquare.rank, this.color) : null;
+		backwardLeftLeftSquare = backwardLeftLeftSquare != null ? board.getNextSquareLeft(backwardLeftLeftSquare.file, backwardLeftLeftSquare.rank, this.color) : null;
+		if (backwardLeftLeftSquare != null && (!board.getPieceOnSquare(backwardLeftLeftSquare.file, backwardLeftLeftSquare.rank) || board.getPieceOnSquare(backwardLeftLeftSquare.file, backwardLeftLeftSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(backwardLeftLeftSquare);
 		}
 
 		//Backward Backward Left
-		let backwardBackwardLeftSquare = Board.getNextSquareBackward(origin, this.color);
-		backwardBackwardLeftSquare = backwardBackwardLeftSquare != null ? Board.getNextSquareBackward(backwardBackwardLeftSquare, this.color) : null
-		backwardBackwardLeftSquare = backwardBackwardLeftSquare != null ? Board.getNextSquareLeft(backwardBackwardLeftSquare, this.color) : null;
-		if (backwardBackwardLeftSquare != null && (!board.getPieceOnSquare(backwardBackwardLeftSquare) || board.getPieceOnSquare(backwardBackwardLeftSquare)?.getColor() != this.color)) {
+		let backwardBackwardLeftSquare = board.getNextSquareBackward(file, rank, this.color);
+		backwardBackwardLeftSquare = backwardBackwardLeftSquare != null ? board.getNextSquareBackward(backwardBackwardLeftSquare.file, backwardBackwardLeftSquare.rank, this.color) : null
+		backwardBackwardLeftSquare = backwardBackwardLeftSquare != null ? board.getNextSquareLeft(backwardBackwardLeftSquare.file, backwardBackwardLeftSquare.rank, this.color) : null;
+		if (backwardBackwardLeftSquare != null && (!board.getPieceOnSquare(backwardBackwardLeftSquare.file, backwardBackwardLeftSquare.rank) || board.getPieceOnSquare(backwardBackwardLeftSquare.file, backwardBackwardLeftSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(backwardBackwardLeftSquare);
 		}
 
 		//Backward Backward Right
-		let backwardBackwardRightSquare = Board.getNextSquareBackward(origin, this.color);
-		backwardBackwardRightSquare = backwardBackwardRightSquare != null ? Board.getNextSquareBackward(backwardBackwardRightSquare, this.color) : null;
-		backwardBackwardRightSquare = backwardBackwardRightSquare != null ? Board.getNextSquareRight(backwardBackwardRightSquare, this.color) : null;
-		if (backwardBackwardRightSquare != null && (!board.getPieceOnSquare(backwardBackwardRightSquare) || board.getPieceOnSquare(backwardBackwardRightSquare)?.getColor() != this.color)) {
+		let backwardBackwardRightSquare = board.getNextSquareBackward(file, rank, this.color);
+		backwardBackwardRightSquare = backwardBackwardRightSquare != null ? board.getNextSquareBackward(backwardBackwardRightSquare.file, backwardBackwardRightSquare.rank, this.color) : null;
+		backwardBackwardRightSquare = backwardBackwardRightSquare != null ? board.getNextSquareRight(backwardBackwardRightSquare.file, backwardBackwardRightSquare.rank, this.color) : null;
+		if (backwardBackwardRightSquare != null && (!board.getPieceOnSquare(backwardBackwardRightSquare.file, backwardBackwardRightSquare.rank) || board.getPieceOnSquare(backwardBackwardRightSquare.file, backwardBackwardRightSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(backwardBackwardRightSquare);
 		}
 
 		//Backward Right Right
-		let backwardRightRightSquare = Board.getNextSquareBackward(origin, this.color);
-		backwardRightRightSquare = backwardRightRightSquare != null ? Board.getNextSquareRight(backwardRightRightSquare, this.color) : null;
-		backwardRightRightSquare = backwardRightRightSquare != null ? Board.getNextSquareRight(backwardRightRightSquare!, this.color) : null;
-		if (backwardRightRightSquare != null && (!board.getPieceOnSquare(backwardRightRightSquare) || board.getPieceOnSquare(backwardRightRightSquare)?.getColor() != this.color)) {
+		let backwardRightRightSquare = board.getNextSquareBackward(file, rank, this.color);
+		backwardRightRightSquare = backwardRightRightSquare != null ? board.getNextSquareRight(backwardRightRightSquare.file, backwardRightRightSquare.rank, this.color) : null;
+		backwardRightRightSquare = backwardRightRightSquare != null ? board.getNextSquareRight(backwardRightRightSquare.file, backwardRightRightSquare.rank, this.color) : null;
+		if (backwardRightRightSquare != null && (!board.getPieceOnSquare(backwardRightRightSquare.file, backwardRightRightSquare.rank) || board.getPieceOnSquare(backwardRightRightSquare.file, backwardRightRightSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(backwardRightRightSquare);
 		}
 
-		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveIllegal(file, rank, move.file, move.rank)) : possibleMoves;
 	}
 }
 
 export class Bishop extends Piece {
-	constructor(color: Color) {
-		super(color, color == Color.WHITE ? 'white_bishop.png' : 'black_bishop.png');
+	constructor(color: 'white' | 'black') {
+		super(color, 'bishop');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
-		const possibleMoves: Square[] = [];
+	override getPossibleMovesFromSquare(file: string, rank: number, board: Board, checkForCausingMate: boolean): {file: string, rank: number}[] {
+		const possibleMoves: {file: string, rank: number}[] = [];
 
 		//Forward Right
-		let currentForwardRightSquare = Board.getNextSquareForwardRight(origin, this.color);
+		let currentForwardRightSquare = board.getNextSquareForwardRight(file, rank, this.color);
 		while (currentForwardRightSquare != null) {
-			if (board.getPieceOnSquare(currentForwardRightSquare)) {
-				if (board.getPieceOnSquare(currentForwardRightSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentForwardRightSquare.file, currentForwardRightSquare.rank)) {
+				if (board.getPieceOnSquare(currentForwardRightSquare.file, currentForwardRightSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentForwardRightSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentForwardRightSquare);
-			currentForwardRightSquare = Board.getNextSquareForwardRight(currentForwardRightSquare, this.color);
+			currentForwardRightSquare = board.getNextSquareForwardRight(currentForwardRightSquare.file, currentForwardRightSquare.rank, this.color);
 		}
 
 		//Forward Left
-		let currentForwardLeftSquare = Board.getNextSquareForwardLeft(origin, this.color);
+		let currentForwardLeftSquare = board.getNextSquareForwardLeft(file, rank, this.color);
 		while (currentForwardLeftSquare != null) {
-			if (board.getPieceOnSquare(currentForwardLeftSquare)) {
-				if (board.getPieceOnSquare(currentForwardLeftSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentForwardLeftSquare.file, currentForwardLeftSquare.rank)) {
+				if (board.getPieceOnSquare(currentForwardLeftSquare.file, currentForwardLeftSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentForwardLeftSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentForwardLeftSquare);
-			currentForwardLeftSquare = Board.getNextSquareForwardLeft(currentForwardLeftSquare, this.color);
+			currentForwardLeftSquare = board.getNextSquareForwardLeft(currentForwardLeftSquare.file, currentForwardLeftSquare.rank, this.color);
 		}
 
 		//Backward Left
-		let currentBackwardLeftSquare = Board.getNextSquareBackwardLeft(origin, this.color);
+		let currentBackwardLeftSquare = board.getNextSquareBackwardLeft(file, rank, this.color);
 		while (currentBackwardLeftSquare != null) {
-			if (board.getPieceOnSquare(currentBackwardLeftSquare)) {
-				if (board.getPieceOnSquare(currentBackwardLeftSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentBackwardLeftSquare.file, currentBackwardLeftSquare.rank)) {
+				if (board.getPieceOnSquare(currentBackwardLeftSquare.file, currentBackwardLeftSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentBackwardLeftSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentBackwardLeftSquare);
-			currentBackwardLeftSquare = Board.getNextSquareBackwardLeft(currentBackwardLeftSquare, this.color);
+			currentBackwardLeftSquare = board.getNextSquareBackwardLeft(currentBackwardLeftSquare.file, currentBackwardLeftSquare.rank, this.color);
 		}
 
 		//Backward Right
-		let currentBackwardRightSquare = Board.getNextSquareBackwardRight(origin, this.color);
+		let currentBackwardRightSquare = board.getNextSquareBackwardRight(file, rank, this.color);
 		while (currentBackwardRightSquare != null) {
-			if (board.getPieceOnSquare(currentBackwardRightSquare)) {
-				if (board.getPieceOnSquare(currentBackwardRightSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentBackwardRightSquare.file, currentBackwardRightSquare.rank)) {
+				if (board.getPieceOnSquare(currentBackwardRightSquare.file, currentBackwardRightSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentBackwardRightSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentBackwardRightSquare);
-			currentBackwardRightSquare = Board.getNextSquareBackwardRight(currentBackwardRightSquare, this.color);
+			currentBackwardRightSquare = board.getNextSquareBackwardRight(currentBackwardRightSquare.file, currentBackwardRightSquare.rank, this.color);
 		}
 
-		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveIllegal(file, rank, move.file, move.rank)) : possibleMoves;
 	}
 }
 
 export class Queen extends Piece {
-	constructor(color: Color) {
-		super(color, color == Color.WHITE ? 'white_queen.png' : 'black_queen.png');
+	constructor(color: 'white' | 'black') {
+		super(color, 'queen');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
-		const possibleMoves: Square[] = [];
+	override getPossibleMovesFromSquare(file: string, rank: number, board: Board, checkForCausingMate: boolean): {file: string, rank: number}[] {
+		const possibleMoves: {file: string, rank: number}[] = [];
 
 		//Forward
-		let currentForwardSquare = Board.getNextSquareForward(origin, this.color);
+		let currentForwardSquare = board.getNextSquareForward(file, rank, this.color);
 		while (currentForwardSquare != null) {
-			if (board.getPieceOnSquare(currentForwardSquare)) {
-				if (board.getPieceOnSquare(currentForwardSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentForwardSquare.file, currentForwardSquare.rank)) {
+				if (board.getPieceOnSquare(currentForwardSquare.file, currentForwardSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentForwardSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentForwardSquare);
-			currentForwardSquare = Board.getNextSquareForward(currentForwardSquare, this.color);
+			currentForwardSquare = board.getNextSquareForward(currentForwardSquare.file, currentForwardSquare.rank, this.color);
 		}
 
 		//Backward
-		let currentBackwardSquare = Board.getNextSquareBackward(origin, this.color);
+		let currentBackwardSquare = board.getNextSquareBackward(file, rank, this.color);
 		while (currentBackwardSquare != null) {
-			if (board.getPieceOnSquare(currentBackwardSquare)) {
-				if (board.getPieceOnSquare(currentBackwardSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentBackwardSquare.file, currentBackwardSquare.rank)) {
+				if (board.getPieceOnSquare(currentBackwardSquare.file, currentBackwardSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentBackwardSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentBackwardSquare);
-			currentBackwardSquare = Board.getNextSquareBackward(currentBackwardSquare, this.color);
+			currentBackwardSquare = board.getNextSquareBackward(currentBackwardSquare.file, currentBackwardSquare.rank, this.color);
 		}
 
 		//Left
-		let currentLeftSquare = Board.getNextSquareLeft(origin, this.color);
+		let currentLeftSquare = board.getNextSquareLeft(file, rank, this.color);
 		while (currentLeftSquare != null) {
-			if (board.getPieceOnSquare(currentLeftSquare)) {
-				if (board.getPieceOnSquare(currentLeftSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentLeftSquare.file, currentLeftSquare.rank)) {
+				if (board.getPieceOnSquare(currentLeftSquare.file, currentLeftSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentLeftSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentLeftSquare);
-			currentLeftSquare = Board.getNextSquareLeft(currentLeftSquare, this.color);
+			currentLeftSquare = board.getNextSquareLeft(currentLeftSquare.file, currentLeftSquare.rank, this.color);
 		}
 
 		//Right
-		let currentRightSquare = Board.getNextSquareRight(origin, this.color);
+		let currentRightSquare = board.getNextSquareRight(file, rank, this.color);
 		while (currentRightSquare != null) {
-			if (board.getPieceOnSquare(currentRightSquare)) {
-				if (board.getPieceOnSquare(currentRightSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentRightSquare.file, currentRightSquare.rank)) {
+				if (board.getPieceOnSquare(currentRightSquare.file, currentRightSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentRightSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentRightSquare);
-			currentRightSquare = Board.getNextSquareRight(currentRightSquare, this.color);
+			currentRightSquare = board.getNextSquareRight(currentRightSquare.file, currentRightSquare.rank, this.color);
 		}
 
 		//Forward Right
-		let currentForwardRightSquare = Board.getNextSquareForwardRight(origin, this.color);
+		let currentForwardRightSquare = board.getNextSquareForwardRight(file, rank, this.color);
 		while (currentForwardRightSquare != null) {
-			if (board.getPieceOnSquare(currentForwardRightSquare)) {
-				if (board.getPieceOnSquare(currentForwardRightSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentForwardRightSquare.file, currentForwardRightSquare.rank)) {
+				if (board.getPieceOnSquare(currentForwardRightSquare.file, currentForwardRightSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentForwardRightSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentForwardRightSquare);
-			currentForwardRightSquare = Board.getNextSquareForwardRight(currentForwardRightSquare, this.color);
+			currentForwardRightSquare = board.getNextSquareForwardRight(currentForwardRightSquare.file, currentForwardRightSquare.rank, this.color);
 		}
 
 		//Forward Left
-		let currentForwardLeftSquare = Board.getNextSquareForwardLeft(origin, this.color);
+		let currentForwardLeftSquare = board.getNextSquareForwardLeft(file, rank, this.color);
 		while (currentForwardLeftSquare != null) {
-			if (board.getPieceOnSquare(currentForwardLeftSquare)) {
-				if (board.getPieceOnSquare(currentForwardLeftSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentForwardLeftSquare.file, currentForwardLeftSquare.rank)) {
+				if (board.getPieceOnSquare(currentForwardLeftSquare.file, currentForwardLeftSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentForwardLeftSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentForwardLeftSquare);
-			currentForwardLeftSquare = Board.getNextSquareForwardLeft(currentForwardLeftSquare, this.color);
+			currentForwardLeftSquare = board.getNextSquareForwardLeft(currentForwardLeftSquare.file, currentForwardLeftSquare.rank, this.color);
 		}
 
 		//Backward Left
-		let currentBackwardLeftSquare = Board.getNextSquareBackwardLeft(origin, this.color);
+		let currentBackwardLeftSquare = board.getNextSquareBackwardLeft(file, rank, this.color);
 		while (currentBackwardLeftSquare != null) {
-			if (board.getPieceOnSquare(currentBackwardLeftSquare)) {
-				if (board.getPieceOnSquare(currentBackwardLeftSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentBackwardLeftSquare.file, currentBackwardLeftSquare.rank)) {
+				if (board.getPieceOnSquare(currentBackwardLeftSquare.file, currentBackwardLeftSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentBackwardLeftSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentBackwardLeftSquare);
-			currentBackwardLeftSquare = Board.getNextSquareBackwardLeft(currentBackwardLeftSquare, this.color);
+			currentBackwardLeftSquare = board.getNextSquareBackwardLeft(currentBackwardLeftSquare.file, currentBackwardLeftSquare.rank, this.color);
 		}
 
 		//Backward Right
-		let currentBackwardRightSquare = Board.getNextSquareBackwardRight(origin, this.color);
+		let currentBackwardRightSquare = board.getNextSquareBackwardRight(file, rank, this.color);
 		while (currentBackwardRightSquare != null) {
-			if (board.getPieceOnSquare(currentBackwardRightSquare)) {
-				if (board.getPieceOnSquare(currentBackwardRightSquare)?.getColor() != this.color) {
+			if (board.getPieceOnSquare(currentBackwardRightSquare.file, currentBackwardRightSquare.rank)) {
+				if (board.getPieceOnSquare(currentBackwardRightSquare.file, currentBackwardRightSquare.rank)?.getColor() != this.color) {
 					possibleMoves.push(currentBackwardRightSquare);
 				}
 				break;
 			}
 			possibleMoves.push(currentBackwardRightSquare);
-			currentBackwardRightSquare = Board.getNextSquareBackwardRight(currentBackwardRightSquare, this.color);
+			currentBackwardRightSquare = board.getNextSquareBackwardRight(currentBackwardRightSquare.file, currentBackwardRightSquare.rank, this.color);
 		}
 
-		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveIllegal(file, rank, move.file, move.rank)) : possibleMoves;
 	}
 }
 
 export class King extends Piece {
-	constructor(color: Color) {
-		super(color, color == Color.WHITE ? 'white_king.png' : 'black_king.png');
+	constructor(color: 'white' | 'black') {
+		super(color, 'king');
 	}
 
-	override getPossibleMoves(origin: Square, board: Board, checkForCausingMate: boolean): Square[] {
-		const possibleMoves: Square[] = [];
+	override getPossibleMovesFromSquare(file: string, rank: number, board: Board, checkForCausingMate: boolean): {file: string, rank: number}[] {
+		const possibleMoves: {file: string, rank: number}[] = [];
 
 		//Forward
-		const forwardSquare = Board.getNextSquareForward(origin, this.color);
-		if (forwardSquare != null && (!board.getPieceOnSquare(forwardSquare) || board.getPieceOnSquare(forwardSquare)?.getColor() != this.color)) {
+		const forwardSquare = board.getNextSquareForward(file, rank, this.color);
+		if (forwardSquare != null && (!board.getPieceOnSquare(forwardSquare.file, forwardSquare.rank) || board.getPieceOnSquare(forwardSquare.file, forwardSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(forwardSquare);
 		}
 
 		//Backward
-		const backwardSquare = Board.getNextSquareBackward(origin, this.color);
-		if (backwardSquare != null && (!board.getPieceOnSquare(backwardSquare) || board.getPieceOnSquare(backwardSquare)?.getColor() != this.color)) {
+		const backwardSquare = board.getNextSquareBackward(file, rank, this.color);
+		if (backwardSquare != null && (!board.getPieceOnSquare(backwardSquare.file, backwardSquare.rank) || board.getPieceOnSquare(backwardSquare.file, backwardSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(backwardSquare);
 		}
 
 		//Left
-		const leftSquare = Board.getNextSquareLeft(origin, this.color);
-		if (leftSquare != null && (!board.getPieceOnSquare(leftSquare) || board.getPieceOnSquare(leftSquare)?.getColor() != this.color)) {
+		const leftSquare = board.getNextSquareLeft(file, rank, this.color);
+		if (leftSquare != null && (!board.getPieceOnSquare(leftSquare.file, leftSquare.rank) || board.getPieceOnSquare(leftSquare.file, leftSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(leftSquare);
 		}
 
 		//Right
-		const rightSquare = Board.getNextSquareRight(origin, this.color);
-		if (rightSquare != null && (!board.getPieceOnSquare(rightSquare) || board.getPieceOnSquare(rightSquare)?.getColor() != this.color)) {
+		const rightSquare = board.getNextSquareRight(file, rank, this.color);
+		if (rightSquare != null && (!board.getPieceOnSquare(rightSquare.file, rightSquare.rank) || board.getPieceOnSquare(rightSquare.file, rightSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(rightSquare);
 		}
 
 		//Forward Right
-		const forwardRightSquare = Board.getNextSquareForwardRight(origin, this.color);
-		if (forwardRightSquare != null && (!board.getPieceOnSquare(forwardRightSquare) || board.getPieceOnSquare(forwardRightSquare)?.getColor() != this.color)) {
+		const forwardRightSquare = board.getNextSquareForwardRight(file, rank, this.color);
+		if (forwardRightSquare != null && (!board.getPieceOnSquare(forwardRightSquare.file, forwardRightSquare.rank) || board.getPieceOnSquare(forwardRightSquare.file, forwardRightSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(forwardRightSquare);
 		}
 
 		//Forward Left
-		const forwardLeftSquare = Board.getNextSquareForwardLeft(origin, this.color);
-		if (forwardLeftSquare != null && (!board.getPieceOnSquare(forwardLeftSquare) || board.getPieceOnSquare(forwardLeftSquare)?.getColor() != this.color)) {
+		const forwardLeftSquare = board.getNextSquareForwardLeft(file, rank, this.color);
+		if (forwardLeftSquare != null && (!board.getPieceOnSquare(forwardLeftSquare.file, forwardLeftSquare.rank) || board.getPieceOnSquare(forwardLeftSquare.file, forwardLeftSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(forwardLeftSquare);
 		}
 
 		//Backward Left
-		const backwardLeftSquare = Board.getNextSquareBackwardLeft(origin, this.color);
-		if (backwardLeftSquare != null && (!board.getPieceOnSquare(backwardLeftSquare) || board.getPieceOnSquare(backwardLeftSquare)?.getColor() != this.color)) {
+		const backwardLeftSquare = board.getNextSquareBackwardLeft(file, rank, this.color);
+		if (backwardLeftSquare != null && (!board.getPieceOnSquare(backwardLeftSquare.file, backwardLeftSquare.rank) || board.getPieceOnSquare(backwardLeftSquare.file, backwardLeftSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(backwardLeftSquare);
 		}
 
 		//Backward Right
-		const backwardRightSquare = Board.getNextSquareBackwardRight(origin, this.color);
-		if (backwardRightSquare != null && (!board.getPieceOnSquare(backwardRightSquare) || board.getPieceOnSquare(backwardRightSquare)?.getColor() != this.color)) {
+		const backwardRightSquare = board.getNextSquareBackwardRight(file, rank, this.color);
+		if (backwardRightSquare != null && (!board.getPieceOnSquare(backwardRightSquare.file, backwardRightSquare.rank) || board.getPieceOnSquare(backwardRightSquare.file, backwardRightSquare.rank)?.getColor() != this.color)) {
 			possibleMoves.push(backwardRightSquare);
 		}
 
-		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveLegal(origin, move)) : possibleMoves;
+		return checkForCausingMate ? possibleMoves.filter( move => !board.isMoveIllegal(file, rank, move.file, move.rank)) : possibleMoves;
 	}
-}
-
-export enum Color {
-	WHITE,
-	BLACK
 }
