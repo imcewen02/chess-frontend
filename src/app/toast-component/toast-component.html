@@ -1,0 +1,23 @@
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    @for(toast of toastService.toasts(); track toast.id) {
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header text-light"
+                [class.bg-success]="toast.type === 'success'"
+                [class.bg-info]="toast.type === 'info'"
+                [class.bg-danger]="toast.type === 'danger'"
+            >
+                <img src="white_pawn.png" alt="pawn" style="width: 25px;">
+                <strong class="me-auto">{{toast.title}}</strong>
+                <button type="button" class="btn-close" (click)="toastService.removeToast(toast.id)" aria-label="Close"></button>
+            </div>
+
+            <div class="toast-body text-light"
+                [class.bg-success]="toast.type === 'success'"
+                [class.bg-info]="toast.type === 'info'"
+                [class.bg-danger]="toast.type === 'danger'"
+            >
+                {{toast.message}}
+            </div>
+        </div>
+    }
+</div>

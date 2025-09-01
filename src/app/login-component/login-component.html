@@ -1,0 +1,23 @@
+<div class="container-fluid mt-4">
+    <div class="fs-1 fw-bold text-light text-center mb-3">Chess M8s</div>
+
+    <div class="row justify-content-center">
+        <div class="card border-success bg-dark col-12 col-sm-8 col-md-6 col-lg-4 col-xl-3">
+            <div class="card-body">
+                <form [formGroup]="loginForm" (ngSubmit)="loginUser()">
+                    <label for="username" class="text-light fw-bold">Username</label>
+                    <input id="username" type="text" class="form-control" formControlName="username">
+
+                    <label for="password" class="text-light fw-bold mt-3">Password</label>
+                    <input id="password" type="password" class="form-control" formControlName="password">
+                    
+                    <button type="submit" class="btn btn-lg btn-success mt-3 d-block mx-auto"> Log In </button>
+                </form>
+            </div>
+
+            <div class="card-footer border-success text-center">
+                <a class="text-light" href="signup">New? Sign up here</a>
+            </div>
+        </div>
+    </div>
+</div>

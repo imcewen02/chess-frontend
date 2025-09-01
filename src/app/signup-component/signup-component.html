@@ -1,0 +1,69 @@
+<div class="container-fluid mt-4">
+    <div class="fs-1 fw-bold text-light text-center mb-3">Create Your Chess M8s Account</div>
+
+    <div class="row justify-content-center">
+        <div class="card border-success bg-dark col-12 col-sm-8 col-md-6 col-lg-4 col-xl-3">
+            <div class="card-body">
+                <form [formGroup]="signupForm" (ngSubmit)="registerUser()">
+                    <label for="email" class="text-light fw-bold">Email</label>
+                    <input id="email" type="email" class="form-control" formControlName="email" [ngClass]="[signupForm.get('email')?.invalid && signupForm.get('email')?.touched ? 'is-invalid' : '']">
+                    @if (signupForm.get('email')?.invalid && signupForm.get('email')?.touched) {
+                        <div class="invalid-feedback fw-bold">
+                            Email invalid.
+                        </div>
+                    }
+
+                    <label for="username" class="text-light fw-bold mt-3">Username</label>
+                    <input id="username" type="text" class="form-control" formControlName="username" [ngClass]="[signupForm.get('username')?.invalid && signupForm.get('username')?.touched ? 'is-invalid' : '']">
+                    @if ((signupForm.get('username')?.hasError('required') || signupForm.get('username')?.hasError('minlength') || signupForm.get('username')?.hasError('maxlength') || signupForm.get('username')?.hasError('pattern')) && signupForm.get('username')?.touched) {
+                        <div class="invalid-feedback fw-bold">
+                            Username must be between 6 and 32 characters, and may only contain ASCII printable characters (no spaces).
+                        </div>
+                    }
+                    @if (signupForm.get('username')?.hasError('usernameTaken') && signupForm.get('username')?.touched) {
+                        <div class="invalid-feedback fw-bold">
+                            Username is already taken.
+                        </div>
+                    }
+
+                    <label for="password" class="text-light fw-bold mt-3">Password</label>
+                    <input id="password" type="password" class="form-control" formControlName="password" [ngClass]="[signupForm.get('password')?.invalid && signupForm.get('password')?.touched ? 'is-invalid' : '']">
+                    @if (signupForm.get('password')?.invalid && signupForm.get('password')?.touched) {
+                        <div class="invalid-feedback fw-bold">
+                            Password must be between 8 and 32 characters, and may only contain ASCII printable characters (no spaces).
+                        </div>
+                    }
+
+                    <label for="confirmedPassword" class="text-light fw-bold mt-3">Confirm Password</label>
+                    <input id="confirmedPassword" type="password" class="form-control" formControlName="confirmedPassword" [ngClass]="[signupForm.hasError('passwordMismatch') && signupForm.get('confirmedPassword')?.touched ? 'is-invalid' : '']">
+                    @if (signupForm.hasError('passwordMismatch') && signupForm.get('confirmedPassword')?.touched) {
+                        <div class="invalid-feedback fw-bold">
+                            Passwords must match.
+                        </div>
+                    }
+
+                    <label for="experience" class="text-light fw-bold mt-3">Chess Experience</label>
+                    <div class="d-flex justify-content-between text-light">
+                        <span>New</span>
+                        <input type="range" class="form-range mx-3" min="0" max="3" id="experience" formControlName="experience">
+                        <span>Pro</span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-lg btn-success mt-3 d-block mx-auto" [disabled]="registrationInProgress() || signupForm.invalid || signupForm.pending">
+                        @if (registrationInProgress()) {
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        } @else {
+                            Sign Up
+                        }
+                    </button>
+                </form>
+            </div>
+
+            <div class="card-footer border-success text-center">
+                <a class="text-light" href="login">Already have an account? Login here</a>
+            </div>
+        </div>
+    </div>
+</div>  
