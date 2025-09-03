@@ -1,7 +1,62 @@
-<div class="container-fluid mt-4" style="text-align: center;">
-    <div class="fs-1 fw-bold text-light">Welcome to Chess M8s!</div>
-    <div class="fs-4 text-light">Get started by choosing an option below...</div>
-    <button type="button" class="btn btn-success mt-3" (click)="router.navigateByUrl('/game')">
-        Play a game with a stranger
-    </button>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12 col-md-6 mt-4">
+			<div class="card border-success bg-dark-custom text-light">
+				@if (getCurrentUser() != null) {
+					<div class="card-body">
+						<div class="card-title fw-bold fs-3">Welcome back {{getCurrentUser()}}!</div>
+					</div>
+				} @else {
+					<div class="card-body text-center">
+						<div class="card-title fw-bold fs-3">Welcome to Chess M8s</div>
+						<div class="d-grid gap-2 col-6 mx-auto">
+							<button type="button" class="btn btn-success btn-lg" (click)="router.navigateByUrl('/signup')">Sign Up</button>
+							<div class="d-flex align-items-center">
+								<hr class="flex-grow-1 border-light">
+								<span class="px-3 text-light">OR</span>
+								<hr class="flex-grow-1 border-light">
+							</div>
+							<button type="button" class="btn btn-success btn-lg" (click)="router.navigateByUrl('/login')">Login</button>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+
+		<div class="col-12 col-md-6 mt-4">
+			<div class="card border-success bg-dark-custom text-light text-center">
+				<div class="card-body">
+					<div class="card-title fw-bold fs-3">Play a Game</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12 mt-4">
+			<div class="card border-success bg-dark-custom text-light text-center">
+				<div class="card-body">
+					<div class="card-title fw-bold fs-3">Leaderboard</div>
+					<table class="table">
+						<thead>
+							<tr>
+								<th scope="col">#</th>
+								<th scope="col">Username</th>
+								<th scope="col">Elo</th>
+							</tr>
+						</thead>
+						<tbody>
+							@for(account of leaderboardList(); track account.username) {
+								<tr>
+									<td>{{leaderboardList().indexOf(account) + 1}}</td>
+									<td>{{account.username}}</td>
+									<td>{{account.elo}}</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

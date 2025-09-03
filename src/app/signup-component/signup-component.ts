@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AccountService } from '../services/account-service';
 import { ToastService } from '../services/toast-service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../services/auth-service';
 
 @Component({
   selector: 'signup-component',
@@ -62,6 +63,7 @@ export class SignupComponent {
 	constructor(
         protected router: Router,
         private accountService: AccountService,
+        private authService: AuthService,
         private toastService: ToastService
     ) { }
 
@@ -74,6 +76,7 @@ export class SignupComponent {
             this.registrationInProgress.set(true);
             const { email, username, password, experience } = this.signupForm.getRawValue();
             await this.accountService.createAccount(email, username, password, experience);
+            await this.authService.login(username, password);
             this.router.navigateByUrl('');
         } catch (err) {
             if (err instanceof HttpErrorResponse) {
