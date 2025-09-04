@@ -1,9 +1,16 @@
 <nav class="navbar sticky-top navbar-expand bg-success">
 	<div class="container-fluid">
-		<a class="navbar-brand d-flex align-items-center text-light fw-bold" href="#">
+		<a class="navbar-brand d-flex align-items-center text-light fw-bold" href="">
 			<img src="white_pawn.png" alt="Logo" width="30">
 			<span>Chess M8s</span>
 		</a>
+
+		@if (getCurrentUser() != null) {
+			<button class="btn btn-sm btn-outline-light" type="button" (click)="logoutUser()">Logout</button>
+		} @else {
+			<button class="btn btn-sm btn-outline-light" type="button" (click)="router.navigateByUrl('/login')">Login</button>
+		}
+
 	</div>
 </nav>
 
