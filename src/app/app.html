@@ -5,12 +5,17 @@
 			<span>Chess M8s</span>
 		</a>
 
-		@if (accountService.getLoggedInAccount() != null) {
-			<button class="btn btn-sm btn-outline-light" type="button" (click)="accountService.logout(); router.navigateByUrl('/')">Logout</button>
-		} @else {
-			<button class="btn btn-sm btn-outline-light" type="button" (click)="router.navigateByUrl('/login')">Login</button>
-		}
+		<div>
+			@if (gameService.activeGame() != null && router.url != '/game') {
+				<button class="btn btn-sm btn-outline-light me-2" type="button" (click)="router.navigateByUrl('/game')">Return To Game</button>
+			}
 
+			@if (accountService.loggedInAccount() != null) {
+				<button class="btn btn-sm btn-outline-light me-2" type="button" (click)="accountService.logout(); router.navigateByUrl('/')">Logout</button>
+			} @else {
+				<button class="btn btn-sm btn-outline-light me-2" type="button" (click)="router.navigateByUrl('/login')">Login</button>
+			}
+		</div>
 	</div>
 </nav>
 

@@ -1,8 +1,9 @@
-import { Injectable } from "@angular/core";
+import { effect, Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 import { io, Socket } from "socket.io-client";
 import { AppConstants } from "../app.constants";
 import { ToastService } from './toast-service';
+import { AccountService } from "./account-service";
 
 @Injectable({
   providedIn: 'root'
@@ -14,14 +15,20 @@ export class SocketService {
 	private eventListeners = new Map<string, Subject<any>>();
 
 	constructor(
-		private toastService: ToastService
+		private toastService: ToastService,
+		private accountService: AccountService
 	) {
+		effect(() => {
+			const account = this.accountService.loggedInAccount();
+			this.refresh();
+		});
+
 		this.refresh();
 	}
 
 	/**
-	 * Disconnects the existing socket connection if its there
-	 * Opens a new authenticated connection (showing a toast error or failure)
+	 * Disconnects the existing socket connection (if there is one)
+	 * Opens a new authenticated connection (showing a toast error on failure)
 	 * Reconnects all existing event listeners
 	 */
 	public refresh(): void {
@@ -61,7 +68,7 @@ export class SocketService {
 		this.eventListeners.set(eventName, subject);
 
 		this.socket!.on(eventName, (data: any) => subject.next(data));
-		
+
 		return this.eventListeners.get(eventName)!.asObservable();
 	}
 

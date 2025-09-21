@@ -1,8 +1,8 @@
-import { Injectable, signal } from "@angular/core";
-import { SocketService } from "./socket-service";
-import { Game } from "../models/Game";
-import { AccountService } from "./account-service";
+import { effect, Injectable, signal } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
+import { Game } from "../models/Game";
+import { SocketService } from "./socket-service";
+import { AccountService } from "./account-service";
 import { ToastService } from "./toast-service";
 
 @Injectable({
@@ -18,7 +18,15 @@ export class GameService {
 		private accountService: AccountService,
 		private toastService: ToastService
 	) {
-		this.populateActiveGame();
+		effect(() => {
+			const account = this.accountService.loggedInAccount();
+			if (account) {
+				this.populateActiveGame();
+			} else {
+				this.activeGame.set(null);
+			}
+		});
+
 		this.socketService.listen("games:gameUpdate").subscribe((game: Game) => this.activeGame.set(game));
 	}
 
@@ -27,7 +35,7 @@ export class GameService {
 	 */
 	private async populateActiveGame(): Promise<void> {
         try {
-			const loggedInUsername = this.accountService.getLoggedInAccount()?.username!;
+			const loggedInUsername = this.accountService.loggedInAccount()?.username!;
             this.activeGame.set(await this.accountService.getAccountsActiveGame(loggedInUsername));
         } catch (err) {
             if (err instanceof HttpErrorResponse) {

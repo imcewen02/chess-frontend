@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { Account } from '../models/Account';
-import { AppConstants } from '../app.constants';
 import { jwtDecode } from "jwt-decode";
+import { AppConstants } from '../app.constants';
+import { Account } from '../models/Account';
 import { AuthToken } from '../models/AuthToken';
-import { SocketService } from './socket-service';
 import { Game } from '../models/Game';
 
 @Injectable({
@@ -14,10 +13,13 @@ import { Game } from '../models/Game';
 export class AccountService {
 	private static readonly BASE_URL = "http://localhost:3000/api/accounts";
 
+	public loggedInAccount = signal<Account | null>(this.getStoredAccount());
+
 	constructor(
-		private http: HttpClient,
-		private socketSerivce: SocketService
-	) {}
+		private http: HttpClient
+	) {
+
+	}
 
 	/**
 	 * Gets all accounts on the site
@@ -82,7 +84,7 @@ export class AccountService {
         const payload = {username: username, password: password};
         const response = await firstValueFrom(this.http.post<{ token: string }>(url, payload));
         localStorage.setItem(AppConstants.JWT_STORAGE_KEY, response.token);
-		this.socketSerivce.refresh();
+		this.loggedInAccount.set(this.getStoredAccount());
     }
 
 	/**
@@ -90,7 +92,7 @@ export class AccountService {
 	 */
     public logout(): void {
         localStorage.removeItem(AppConstants.JWT_STORAGE_KEY);
-		this.socketSerivce.refresh();
+		this.loggedInAccount.set(null);
     }
 
 	/**
@@ -98,7 +100,7 @@ export class AccountService {
 	 * 
 	 * @returns the current account, or null if the user is not logged in
 	 */
-    public getLoggedInAccount(): Account | null {
+    private getStoredAccount(): Account | null {
         const token = localStorage.getItem(AppConstants.JWT_STORAGE_KEY)
         return token != null ? jwtDecode<AuthToken>(token).account : null;
     }
