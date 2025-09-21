@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { io, Socket } from "socket.io-client";
 import { AppConstants } from "../app.constants";
 import { ToastService } from './toast-service';
@@ -11,6 +11,7 @@ export class SocketService {
 	private static readonly BASE_URL = "http://localhost:3000";
 
 	private socket: Socket | null = null;
+	private eventListeners = new Map<string, Subject<any>>();
 
 	constructor(
 		private toastService: ToastService
@@ -19,7 +20,9 @@ export class SocketService {
 	}
 
 	/**
-	 * Sets up the socket connection with a default listener for a connection error
+	 * Disconnects the existing socket connection if its there
+	 * Opens a new authenticated connection (showing a toast error or failure)
+	 * Reconnects all existing event listeners
 	 */
 	public refresh(): void {
 		if (this.socket != null) {
@@ -40,6 +43,10 @@ export class SocketService {
 				autoHideDelay: 5000
 			})
 		})
+
+		this.eventListeners.forEach((subject, eventName) => {
+			this.socket!.on(eventName, (data) => subject.next(data));
+		});
 	}
 
 	/**
@@ -50,9 +57,12 @@ export class SocketService {
 	 * @returns an observable wrapping the socket event
 	 */
 	public listen(eventName: string): Observable<any> {
-		return new Observable((subscriber) => {
-			this.socket!.on(eventName, (data) => { subscriber.next(data); });
-		});
+		const subject = new Subject<any>();
+		this.eventListeners.set(eventName, subject);
+
+		this.socket!.on(eventName, (data: any) => subject.next(data));
+		
+		return this.eventListeners.get(eventName)!.asObservable();
 	}
 
 	/**
