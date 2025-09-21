@@ -5,6 +5,7 @@ import { Account } from '../models/Account';
 import { AppConstants } from '../app.constants';
 import { jwtDecode } from "jwt-decode";
 import { AuthToken } from '../models/AuthToken';
+import { SocketService } from './socket-service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,10 @@ import { AuthToken } from '../models/AuthToken';
 export class AccountService {
 	private static readonly BASE_URL = "http://localhost:3000/api/accounts";
 
-	constructor(private http: HttpClient) {}
+	constructor(
+		private http: HttpClient,
+		private socketSerive: SocketService
+	) {}
 
 	public async getAllAccounts(): Promise<Account[]> {
 		const url = `${AccountService.BASE_URL}/`;
@@ -37,10 +41,12 @@ export class AccountService {
         const payload = {username: username, password: password};
         const response = await firstValueFrom(this.http.post<{ token: string }>(url, payload));
         localStorage.setItem(AppConstants.JWT_STORAGE_KEY, response.token);
+		this.socketSerive.refresh();
     }
 
     public logout(): void {
         localStorage.removeItem(AppConstants.JWT_STORAGE_KEY);
+		this.socketSerive.refresh();
     }
 
     public getLoggedInAccount(): Account | null {

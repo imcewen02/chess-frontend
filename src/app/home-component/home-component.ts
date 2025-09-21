@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { AccountService } from '../services/account-service';
 import { ToastService } from '../services/toast-service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { SocketService } from '../services/socket-service';
 import { Account } from '../models/Account';
 
 @Component({
