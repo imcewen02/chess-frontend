@@ -2,9 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule} from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../services/auth-service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '../services/toast-service';
+import { AccountService } from '../services/account-service';
 
 @Component({
   selector: 'login-component',
@@ -29,7 +29,7 @@ export class LoginComponent {
 
 	constructor(
         protected router: Router,
-        private authService: AuthService,
+        private accountService: AccountService,
         private toastService: ToastService
     ) { }
 
@@ -41,7 +41,7 @@ export class LoginComponent {
         try {
             this.loginInProgress.set(true);
             const { username, password } = this.loginForm.getRawValue();
-            await this.authService.login(username, password);
+            await this.accountService.login(username, password);
             this.router.navigateByUrl('');
         } catch (err) {
             if (err instanceof HttpErrorResponse) {

@@ -1,6 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { Account } from '../models/Account';
+import { AppConstants } from '../app.constants';
+import { jwtDecode } from "jwt-decode";
+import { AuthToken } from '../models/AuthToken';
 
 @Injectable({
   providedIn: 'root'
@@ -27,11 +31,24 @@ export class AccountService {
 		const payload = {email: email, username: username, password: password, experience: experience};
 		const response = await firstValueFrom(this.http.post(url, payload));
 	}
-}
 
-export interface Account {
-	username: string;
-	password: string;
-	elo: number;
-	email: string;
+    public async login(username: string, password: string): Promise<void> {
+        const url = `${AccountService.BASE_URL}/login`;
+        const payload = {username: username, password: password};
+        const response = await firstValueFrom(this.http.post<{ token: string }>(url, payload));
+        localStorage.setItem(AppConstants.JWT_STORAGE_KEY, response.token);
+    }
+
+    public logout(): void {
+        localStorage.removeItem(AppConstants.JWT_STORAGE_KEY);
+    }
+
+    public getLoggedInAccount(): Account | null {
+        const token = localStorage.getItem(AppConstants.JWT_STORAGE_KEY)
+        return token != null ? jwtDecode<AuthToken>(token).account : null;
+    }
+
+    public getAuthToken(): String | null {
+        return localStorage.getItem(AppConstants.JWT_STORAGE_KEY);
+    }
 }

@@ -2,9 +2,9 @@
 	<div class="row">
 		<div class="col-12 col-md-6 mt-4">
 			<div class="card border-success bg-dark-custom text-light">
-				@if (getCurrentUser() != null) {
+				@if (accountService.getLoggedInAccount() != null) {
 					<div class="card-body">
-						<div class="card-title fw-bold fs-3">Welcome back {{getCurrentUser()}}!</div>
+						<div class="card-title fw-bold fs-3">Welcome back {{accountService.getLoggedInAccount()?.username}}!</div>
 					</div>
 				} @else {
 					<div class="card-body text-center">
@@ -25,8 +25,12 @@
 
 		<div class="col-12 col-md-6 mt-4">
 			<div class="card border-success bg-dark-custom text-light text-center">
-				<div class="card-body">
+				<div class="card-body text-center">
 					<div class="card-title fw-bold fs-3">Play a Game</div>
+					<div class="d-grid gap-2 col-6 mx-auto">
+						<button type="button" class="btn btn-success btn-lg" (click)="router.navigateByUrl('/game')">5 minute</button>
+						<button type="button" class="btn btn-success btn-lg" (click)="router.navigateByUrl('/game')">10 minute</button>
+					</div>
 				</div>
 			</div>
 		</div>

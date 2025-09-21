@@ -1,13 +1,5 @@
 import { Injectable, signal } from '@angular/core';
 
-export interface Toast {
-	id: number;
-	title: string;
-	message: string;
-	type: 'success' | 'info' | 'danger';
-	autoHideDelay: number;
-}
-
 @Injectable({ providedIn: 'root' })
 export class ToastService {
 	public toasts = signal<Toast[]>([])
@@ -25,4 +17,12 @@ export class ToastService {
 	public removeToast(toastId: number): void {
 		this.toasts.update(list => list.filter(canidate => canidate.id !== toastId));
 	}
+}
+
+export interface Toast {
+	id: number;
+	title: string;
+	message: string;
+	type: 'success' | 'info' | 'danger';
+	autoHideDelay: number;
 }

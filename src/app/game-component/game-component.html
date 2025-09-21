@@ -1,50 +1,54 @@
 <div class="container-fluid d-flex justify-content-center">
-	@if (gameData == null) {
-		<div class="spinner-border text-light"></div>
-		<div class="fw-bold text-light">{{ socket.connected ? "Looking For Game..." : "Connecting To Server..."}}</div>
-	} @else {
-		<div class="board mt-5" (click)="$event.stopPropagation()">
-			@for (rank of gameData.board.getRanks(); track rank) {
-				<div class="label fw-bold text-light">{{rank}}</div>
-				@for (file of gameData.board.getFiles(); track file) {
-					<div class="square-container"
-						[attr.id]="file + rank"
-						(click)="onSquareClicked(file, rank)"
-						[ngClass]="(gameData.board.getFileAsNumber(file) + rank) % 2 == 0 ? 'dark' : 'light'"
-					>
-						<!--Add a highlight to the square if its active-->
-						@if (selectedSquare == file + rank) {
-							<div class="highlight" style="width: 100%; height: 100%;"></div>
-						}
-
-						<!--Add a piece image to the square if a piece exists-->
-						@if (gameData.board.getPieceOnSquare(file, rank) != null) {
-							<img class="piece-img" 
-								[src]="gameData.board.getPieceOnSquare(file, rank)?.getColor() + '_' + gameData.board.getPieceOnSquare(file, rank)?.getName() + '.png'" 
-								[attr.alt]="gameData.board.getPieceOnSquare(file, rank)?.getColor() + '_' + gameData.board.getPieceOnSquare(file, rank)?.getName() + '.png'" 
-								draggable="false"
-							>
-						}
-
-						<!--Add dot to the square if its a possible move-->
-						@if (possibleMovesContainsSquare(file, rank)) {
-							<div class="available-move-container">
-								@if (gameData.board.getPieceOnSquare(file, rank) == null) {
-									<div class="available-move-dot highlight"></div>
-								} @else {
-									<div class="available-capture-dot"></div>
-								}
-							</div>
-						}
-					</div>
-				}
-			}
-
-			<!-- File labels -->
-			<div></div>
-			@for (file of gameData.board.getFiles(); track file) {
-				<div class="label fw-bold text-light">{{file}}</div>
-			}
+	@if (status == Status.SEARCHING) {
+		<div class="overlay">
+			<div class="spinner-border text-light"></div>
+			<div class="fw-bold text-light mt-3">
+				{{ true ? "Looking For Game..." : "Connecting To Server..."}}
+			</div>
 		</div>
 	}
+	
+	<div class="board mt-5" (click)="$event.stopPropagation()">
+		@for (rank of game.getBoard().getRanks(); track rank) {
+			<div class="label fw-bold text-light">{{rank}}</div>
+			@for (file of game.getBoard().getFiles(); track file) {
+				<div class="square-container"
+					[attr.id]="file + rank"
+					(click)="onSquareClicked(file, rank)"
+					[ngClass]="(game.getBoard().getFileAsNumber(file) + rank) % 2 == 0 ? 'dark' : 'light'"
+				>
+					<!--Add a highlight to the square if its active-->
+					@if (selectedSquare == file + rank) {
+						<div class="highlight" style="width: 100%; height: 100%;"></div>
+					}
+
+					<!--Add a piece image to the square if a piece exists-->
+					@if (game.getBoard().getPieceOnSquare(file, rank) != null) {
+						<img class="piece-img" 
+							[src]="game.getBoard().getPieceOnSquare(file, rank)?.getColor() + '_' + game.getBoard().getPieceOnSquare(file, rank)?.getName() + '.png'" 
+							[attr.alt]="game.getBoard().getPieceOnSquare(file, rank)?.getColor() + '_' + game.getBoard().getPieceOnSquare(file, rank)?.getName() + '.png'" 
+							draggable="false"
+						>
+					}
+
+					<!--Add dot to the square if its a possible move-->
+					@if (possibleMovesContainsSquare(file, rank)) {
+						<div class="available-move-container">
+							@if (game.getBoard().getPieceOnSquare(file, rank) == null) {
+								<div class="available-move-dot highlight"></div>
+							} @else {
+								<div class="available-capture-dot"></div>
+							}
+						</div>
+					}
+				</div>
+			}
+		}
+
+		<!-- File labels -->
+		<div></div>
+		@for (file of game.getBoard().getFiles(); track file) {
+			<div class="label fw-bold text-light">{{file}}</div>
+		}
+	</div>
 </div>

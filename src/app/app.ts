@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { ToastComponent } from "./toast-component/toast-component";
-import { AuthService } from './services/auth-service';
+import { AccountService } from './services/account-service';
 
 @Component({
   selector: 'app-root',
@@ -12,15 +12,6 @@ import { AuthService } from './services/auth-service';
 export class App {
 	constructor(
 		protected router: Router, 
-		private authService: AuthService
+		protected accountService: AccountService
 	) { }
-
-	protected logoutUser() { 
-		this.authService.logout();
-		this.router.navigateByUrl("/")
-	}
-
-	protected getCurrentUser(): string | null {
-		return this.authService.getCurrentUsername();
-	}
 }

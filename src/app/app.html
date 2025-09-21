@@ -5,8 +5,8 @@
 			<span>Chess M8s</span>
 		</a>
 
-		@if (getCurrentUser() != null) {
-			<button class="btn btn-sm btn-outline-light" type="button" (click)="logoutUser()">Logout</button>
+		@if (accountService.getLoggedInAccount() != null) {
+			<button class="btn btn-sm btn-outline-light" type="button" (click)="accountService.logout(); router.navigateByUrl('/')">Logout</button>
 		} @else {
 			<button class="btn btn-sm btn-outline-light" type="button" (click)="router.navigateByUrl('/login')">Login</button>
 		}

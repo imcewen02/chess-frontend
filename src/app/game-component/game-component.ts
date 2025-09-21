@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectorRef, HostListener } from '@angular/core';
-import { io, Socket } from 'socket.io-client';
-import { Board } from './board';
+import { ToastService } from '../services/toast-service';
+import { SocketService } from '../services/socket-service';
+import { Game } from '../models/Game';
+import { AccountService } from '../services/account-service';
 
 @Component({
 	selector: 'app-game-component',
@@ -10,40 +12,40 @@ import { Board } from './board';
 	styleUrl: './game-component.css'
 })
 export class GameComponent {
-	Board = Board;
-
-  	protected socket: Socket;
-
-	protected gameData: GameData | null = null;
-	protected playerColor: string = '';
+	protected game: Game;
+	
+	protected Status = Status;
+	protected status: Status = Status.SEARCHING;
 
 	protected selectedSquare: string | null = null;
 	protected possibleMoves: {file: string, rank: number}[] | undefined = [];
 
-	constructor(private cdr: ChangeDetectorRef) {
-		this.socket = io('http://localhost:3000');
-		this.socket.on('connect', () => { this.onConnectToServer() });
-		this.socket.on('gameUpdate', (data) => { this.onGameUpdate(data) })
-		this.socket.on('disconnect', () => { cdr.detectChanges() });
+	constructor(
+		private toastService: ToastService,
+		private socketService: SocketService,
+		private accountService: AccountService,
+		private cdr: ChangeDetectorRef
+	) {
+		this.game = new Game();
+		this.socketService.emit("games:joinQueue", accountService.getAuthToken());
 	}
 
 	/***************************
 	Server Event Listeners Start
 	***************************/
 	onConnectToServer() {
-		this.socket.emit('joinQueue');
 		this.cdr.detectChanges();
 	}
 
 	onGameUpdate(data: any) {
-		this.playerColor = data.whitePlayer == this.socket.id ? 'white' : 'black';
+		//this.playerColor = data.whitePlayer == this.socket.id ? 'white' : 'black';
 
-		this.gameData = {
-			uuid: data.uuid,
-			whitePlayer: data.whitePlayer,
-			blackPlayer: data.blackPlayer,
-			board: new Board(this.playerColor, data.board.squares)
-		};
+		//this.gameData = {
+		//	uuid: data.uuid,
+		//	whitePlayer: data.whitePlayer,
+		//	blackPlayer: data.blackPlayer,
+		//	board: new Board(this.playerColor, data.board.squares)
+		//};
 
 		this.cdr.detectChanges();
 	}
@@ -63,12 +65,12 @@ export class GameComponent {
 
 	onSquareClicked(file: string, rank: number) {
 		if (this.possibleMovesContainsSquare(file, rank)) {
-			this.socket.emit('movePiece', {uuid: this.gameData?.uuid, origin: this.selectedSquare, destination: file + rank});
+			//this.socket.emit('movePiece', {uuid: this.gameData?.uuid, origin: this.selectedSquare, destination: file + rank});
 		}
 
-		const pieceOnSquare = this.gameData?.board.getPieceOnSquare(file, rank);
-		this.selectedSquare = pieceOnSquare?.getColor() == this.playerColor ? file + rank : null;
-		this.possibleMoves = pieceOnSquare?.getColor() == this.playerColor ? pieceOnSquare?.getPossibleMovesFromSquare(file, rank, this.gameData?.board!, true) : [];
+		//const pieceOnSquare = this.gameData?.board.getPieceOnSquare(file, rank);
+		//this.selectedSquare = pieceOnSquare?.getColor() == this.playerColor ? file + rank : null;
+		//this.possibleMoves = pieceOnSquare?.getColor() == this.playerColor ? pieceOnSquare?.getPossibleMovesFromSquare(file, rank, this.gameData?.board!, true) : [];
 
 		console.log(this.possibleMoves)
 	}
@@ -78,9 +80,4 @@ export class GameComponent {
 	}
 }
 
-type GameData = {
-	uuid: string;
-	whitePlayer: string;
-	blackPlayer: string;
-	board: Board;
-}
+enum Status {SEARCHING, IN_PROGRESS, COMPLETE};

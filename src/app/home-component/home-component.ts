@@ -1,9 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Account, AccountService } from '../services/account-service';
+import { AccountService } from '../services/account-service';
 import { ToastService } from '../services/toast-service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../services/auth-service';
+import { SocketService } from '../services/socket-service';
+import { Account } from '../models/Account';
 
 @Component({
 	selector: 'app-home-component',
@@ -16,8 +17,7 @@ export class HomeComponent implements OnInit {
 
 	constructor(
 		protected router: Router, 
-		private accountService: AccountService,
-		private authService: AuthService,
+		protected accountService: AccountService,
 		private toastService: ToastService
 	) { }
 
@@ -39,9 +39,5 @@ export class HomeComponent implements OnInit {
         } finally {
 
         }
-	}
-
-	protected getCurrentUser(): string | null {
-		return this.authService.getCurrentUsername();
 	}
 }

@@ -1,4 +1,11 @@
-import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./pieces";
+import { Piece } from "./Piece";
+import { Bishop } from "./pieces/Bishop";
+import { King } from "./pieces/King";
+import { Knight } from "./pieces/Knight";
+import { Pawn } from "./pieces/Pawn";
+import { Queen } from "./pieces/Queen";
+import { Rook } from "./pieces/Rook";
+
 
 export class Board {
 	private squares: { [square: string]: Piece | null } = {};
