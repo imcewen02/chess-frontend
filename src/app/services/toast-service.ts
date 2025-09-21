@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { Toast } from '../models/Toast';
 
 @Injectable({ providedIn: 'root' })
 export class ToastService {
@@ -17,12 +18,4 @@ export class ToastService {
 	public removeToast(toastId: number): void {
 		this.toasts.update(list => list.filter(canidate => canidate.id !== toastId));
 	}
-}
-
-export interface Toast {
-	id: number;
-	title: string;
-	message: string;
-	type: 'success' | 'info' | 'danger';
-	autoHideDelay: number;
 }

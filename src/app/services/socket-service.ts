@@ -10,7 +10,7 @@ import { ToastService } from './toast-service';
 export class SocketService {
 	private static readonly BASE_URL = "http://localhost:3000";
 
-	private socket!: Socket;
+	private socket: Socket | null = null;
 
 	constructor(
 		private toastService: ToastService
@@ -22,6 +22,11 @@ export class SocketService {
 	 * Sets up the socket connection with a default listener for a connection error
 	 */
 	public refresh(): void {
+		if (this.socket != null) {
+			this.socket.disconnect();
+			this.socket = null;
+		}
+
 		this.socket = io(
 			SocketService.BASE_URL, 
 			{ auth: { token: localStorage.getItem(AppConstants.JWT_STORAGE_KEY) } }
@@ -41,10 +46,12 @@ export class SocketService {
 	 * Creates an observable for the given event
 	 * 
 	 * @param eventName the name of the event to listen for
+	 * 
+	 * @returns an observable wrapping the socket event
 	 */
 	public listen(eventName: string): Observable<any> {
 		return new Observable((subscriber) => {
-			this.socket.on(eventName, (data) => { subscriber.next(data); });
+			this.socket!.on(eventName, (data) => { subscriber.next(data); });
 		});
 	}
 
@@ -55,6 +62,6 @@ export class SocketService {
 	 * @param data the payload to emit
 	 */
 	public emit(eventName: string, data: any): void {
-		this.socket.emit(eventName, data);
+		this.socket!.emit(eventName, data);
 	}
 }

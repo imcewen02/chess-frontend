@@ -4,6 +4,7 @@ import { ToastService } from '../services/toast-service';
 import { SocketService } from '../services/socket-service';
 import { Game } from '../models/Game';
 import { AccountService } from '../services/account-service';
+import { GameService } from '../services/game-service';
 
 @Component({
 	selector: 'app-game-component',
@@ -12,22 +13,15 @@ import { AccountService } from '../services/account-service';
 	styleUrl: './game-component.css'
 })
 export class GameComponent {
-	protected game: Game;
-	
-	protected Status = Status;
-	protected status: Status = Status.SEARCHING;
-
 	protected selectedSquare: string | null = null;
 	protected possibleMoves: {file: string, rank: number}[] | undefined = [];
 
 	constructor(
-		private toastService: ToastService,
 		private socketService: SocketService,
-		private accountService: AccountService,
+		protected gameService: GameService,
 		private cdr: ChangeDetectorRef
 	) {
-		this.game = new Game();
-		this.socketService.emit("games:joinQueue", accountService.getAuthToken());
+		this.gameService.joinQueue();
 	}
 
 	/***************************
