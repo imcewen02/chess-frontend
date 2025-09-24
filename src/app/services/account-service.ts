@@ -3,9 +3,9 @@ import { Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { jwtDecode } from "jwt-decode";
 import { AppConstants } from '../app.constants';
-import { Account } from '../models/Account';
-import { AuthToken } from '../models/AuthToken';
-import { Game } from '../models/Game';
+import { Account } from '../models/account';
+import { AuthToken } from '../models/authToken';
+import { Game } from '../models/game';
 
 @Injectable({
   providedIn: 'root'

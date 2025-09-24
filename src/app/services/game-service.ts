@@ -1,15 +1,15 @@
 import { effect, Injectable, signal } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
-import { Game } from "../models/Game";
+import { Game } from "../models/game";
 import { SocketService } from "./socket-service";
 import { AccountService } from "./account-service";
 import { ToastService } from "./toast-service";
+import { Position } from "../models/position";
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
-	private static readonly BASE_URL = "http://localhost:3000";
 
 	public activeGame = signal<Game | null>(null); // tracks the current game of the logged in user
 
@@ -18,25 +18,28 @@ export class GameService {
 		private accountService: AccountService,
 		private toastService: ToastService
 	) {
-		effect(() => {
-			const account = this.accountService.loggedInAccount();
-			if (account) {
-				this.populateActiveGame();
-			} else {
-				this.activeGame.set(null);
-			}
+		this.refreshActiveGame();
+
+		this.socketService.listen("games:gameUpdate").subscribe( (gameJson: Game) => { 
+			this.activeGame.set(gameJson);
 		});
 
-		this.socketService.listen("games:gameUpdate").subscribe((game: Game) => this.activeGame.set(game));
+		effect(() => {
+			const account = this.accountService.loggedInAccount();
+			this.refreshActiveGame();
+		});
 	}
 
 	/**
 	 * Attempts to retrieve and set the logged in users active game
 	 */
-	private async populateActiveGame(): Promise<void> {
+	private async refreshActiveGame(): Promise<void> {
         try {
 			const loggedInUsername = this.accountService.loggedInAccount()?.username!;
-            this.activeGame.set(await this.accountService.getAccountsActiveGame(loggedInUsername));
+			if (loggedInUsername == null) this.activeGame.set(null);
+
+			const gameJson = await this.accountService.getAccountsActiveGame(loggedInUsername);
+            this.activeGame.set(gameJson);
         } catch (err) {
             if (err instanceof HttpErrorResponse) {
                 this.toastService.showToast({title: `${err.status} API Error`, message: err.error.error, type: 'danger', autoHideDelay: 3000})
@@ -48,5 +51,9 @@ export class GameService {
 
 	public joinQueue(): void {
 		this.socketService.emit("games:joinQueue", null);
+	}
+
+	public movePiece(origin: Position, destination: Position): void {
+		this.socketService.emit('games:movePiece', origin, destination);
 	}
 }

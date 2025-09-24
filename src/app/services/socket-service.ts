@@ -18,12 +18,12 @@ export class SocketService {
 		private toastService: ToastService,
 		private accountService: AccountService
 	) {
+		this.refreshSocketConnection();
+
 		effect(() => {
 			const account = this.accountService.loggedInAccount();
-			this.refresh();
+			this.refreshSocketConnection();
 		});
-
-		this.refresh();
 	}
 
 	/**
@@ -31,7 +31,7 @@ export class SocketService {
 	 * Opens a new authenticated connection (showing a toast error on failure)
 	 * Reconnects all existing event listeners
 	 */
-	public refresh(): void {
+	public refreshSocketConnection(): void {
 		if (this.socket != null) {
 			this.socket.disconnect();
 			this.socket = null;
@@ -76,9 +76,9 @@ export class SocketService {
 	 * Emits the given event and any related data
 	 * 
 	 * @param eventName the name of the event to emit
-	 * @param data the payload to emit
+	 * @param args the args to emit
 	 */
-	public emit(eventName: string, data: any): void {
-		this.socket!.emit(eventName, data);
+	public emit(eventName: string, ...args: any[]): void {
+		this.socket!.emit(eventName, ...args);
 	}
 }
