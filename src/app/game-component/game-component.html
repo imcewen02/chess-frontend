@@ -1,53 +1,53 @@
 <div class="container-fluid d-flex justify-content-center">
-	@if (game().uuid == "") {
+	@if (game() == null) {
 		<div class="overlay">
 			<div class="spinner-border text-light"></div>
 			<div class="fw-bold text-light mt-3">
 				{{ true ? "Looking For Game..." : "Connecting To Server..."}}
 			</div>
 		</div>
-	}
+	} @else {
+		<div class="board mt-5" (click)="$event.stopPropagation()">
+			@for (rank of ranks(); track rank;) {
+				<div class="label fw-bold text-light">{{rank}}</div>
+				@for (file of files(); track file; ) {
+					<div class="square-container"
+						(click)="onPositionClicked({rank: rank, file: file})"
+						[ngClass]="(rank + game()!.board.files.indexOf(file)) % 2 == 0 ? 'dark' : 'light'"
+					>
+						<!--Add a highlight to the square if its active-->
+						@if (selectedPosition?.rank == rank && selectedPosition?.file == file) {
+							<div class="highlight" style="width: 100%; height: 100%;"></div>
+						}
 
-	<div class="board mt-5" (click)="$event.stopPropagation()">
-		@for (rank of game().board.ranks; track rank;) {
-			<div class="label fw-bold text-light">{{rank}}</div>
-			@for (file of game().board.files; track file; ) {
-				<div class="square-container"
-					(click)="onPositionClicked({rank: rank, file: file})"
-					[ngClass]="(rank + game().board.files.indexOf(file)) % 2 == 0 ? 'dark' : 'light'"
-				>
-					<!--Add a highlight to the square if its active-->
-					@if (selectedPosition?.rank == rank && selectedPosition?.file == file) {
-						<div class="highlight" style="width: 100%; height: 100%;"></div>
-					}
+						<!--Add a piece image to the square if a piece exists-->
+						@if (game()!.board.getPieceAtPosition({rank: rank, file: file})) {
+							<img class="piece-img" 
+								[src]="game()!.board.getPieceAtPosition({rank: rank, file: file})!.color + '_' + game()!.board.getPieceAtPosition({rank: rank, file: file})!.name + '.png'" 
+								[attr.alt]="game()!.board.getPieceAtPosition({rank: rank, file: file})!.color + '_' + game()!.board.getPieceAtPosition({rank: rank, file: file})!.name + '.png'" 
+								draggable="false"
+							>
+						}
 
-					<!--Add a piece image to the square if a piece exists-->
-					@if (game().board.getPieceAtPosition({rank: rank, file: file})) {
-						<img class="piece-img" 
-							[src]="game().board.getPieceAtPosition({rank: rank, file: file})!.color + '_' + game().board.getPieceAtPosition({rank: rank, file: file})!.name + '.png'" 
-							[attr.alt]="game().board.getPieceAtPosition({rank: rank, file: file})!.color + '_' + game().board.getPieceAtPosition({rank: rank, file: file})!.name + '.png'" 
-							draggable="false"
-						>
-					}
-
-					<!--Add dot to the square if its a possible move-->
-					@if (isPositionInSelectedPiecesLegalMoves({rank: rank, file: file})) {
-						<div class="available-move-container">
-							@if (game().board.getPieceAtPosition({rank: rank, file: file})) {
-								<div class="available-capture-dot"></div>
-							} @else {
-								<div class="available-move-dot highlight"></div>
-							}
-						</div>
-					}
-				</div>
+						<!--Add dot to the square if its a possible move-->
+						@if (isPositionInSelectedPiecesLegalMoves({rank: rank, file: file})) {
+							<div class="available-move-container">
+								@if (game()!.board.getPieceAtPosition({rank: rank, file: file})) {
+									<div class="available-capture-dot"></div>
+								} @else {
+									<div class="available-move-dot highlight"></div>
+								}
+							</div>
+						}
+					</div>
+				}
 			}
-		}
 
-		<!-- File labels -->
-		<div></div>
-		@for (file of game().board.files; track file) {
-			<div class="label fw-bold text-light">{{file}}</div>
-		}
-	</div>
+			<!-- File labels -->
+			<div></div>
+			@for (file of files(); track file) {
+				<div class="label fw-bold text-light">{{file}}</div>
+			}
+		</div>
+	}
 </div>
