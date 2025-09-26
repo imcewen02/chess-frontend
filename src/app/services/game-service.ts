@@ -5,6 +5,7 @@ import { SocketService } from "./socket-service";
 import { AccountService } from "./account-service";
 import { ToastService } from "./toast-service";
 import { Position } from "../models/position";
+import { Board } from "../models/board";
 
 @Injectable({
   providedIn: 'root'
@@ -19,14 +20,14 @@ export class GameService {
 		private toastService: ToastService
 	) {
 		this.refreshActiveGame();
-
-		this.socketService.listen("games:gameUpdate").subscribe( (gameJson: Game) => { 
-			this.activeGame.set(gameJson);
+		
+		effect(() => { 
+			this.accountService.loggedInAccount(); 
+			this.refreshActiveGame(); 
 		});
 
-		effect(() => {
-			const account = this.accountService.loggedInAccount();
-			this.refreshActiveGame();
+		this.socketService.listen("games:gameUpdate").subscribe( (gameJson: any) => { 
+			this.activeGame.set({ ...gameJson, board: new Board(gameJson.board.squares) }); 
 		});
 	}
 
@@ -34,12 +35,17 @@ export class GameService {
 	 * Attempts to retrieve and set the logged in users active game
 	 */
 	private async refreshActiveGame(): Promise<void> {
-        try {
-			const loggedInUsername = this.accountService.loggedInAccount()?.username!;
-			if (loggedInUsername == null) this.activeGame.set(null);
+		this.activeGame.set(null);
 
-			const gameJson = await this.accountService.getAccountsActiveGame(loggedInUsername);
-            this.activeGame.set(gameJson);
+        try {
+			const loggedInUsername = this.accountService.loggedInAccount()?.username;
+			if (loggedInUsername == null) return;
+
+			const gameJson: any = await this.accountService.getAccountsActiveGame(loggedInUsername);
+			if (gameJson == null) return;
+
+			const game: Game = { ...gameJson, board: new Board(gameJson.board.squares) };
+            this.activeGame.set(game);
         } catch (err) {
             if (err instanceof HttpErrorResponse) {
                 this.toastService.showToast({title: `${err.status} API Error`, message: err.error.error, type: 'danger', autoHideDelay: 3000})
