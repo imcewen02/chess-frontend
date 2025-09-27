@@ -2,29 +2,44 @@
 	@if (game() == null) {
 		<div class="overlay">
 			<div class="spinner-border text-light"></div>
-			<div class="fw-bold text-light mt-3">
-				{{ true ? "Looking For Game..." : "Connecting To Server..."}}
-			</div>
+			<div class="fw-bold text-light mt-3">Looking For Game...</div>
 		</div>
 	} @else {
-		<div class="board mt-5" (click)="$event.stopPropagation()">
+		<div class="board-container mt-5">
+			<!-- Opponent Info -->
+			<div class="player-container">
+				<span class="text-light fw-bold">{{opponentsAccount()?.username}}</span>
+				<span class="text-light fw-light  "> ({{opponentsAccount()?.elo}})</span>
+			</div>
+
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom"></div>
+
+			<!-- Board -->
 			@for (rank of ranks(); track rank;) {
-				<div class="label fw-bold text-light">{{rank}}</div>
+				<div class="label bg-dark-custom fw-bold text-light">{{rank}}</div>
 				@for (file of files(); track file; ) {
-					<div class="square-container"
+					<div class="square"
 						(click)="onPositionClicked({rank: rank, file: file})"
 						[ngClass]="(rank + game()!.board.files.indexOf(file)) % 2 == 0 ? 'dark' : 'light'"
 					>
 						<!--Add a highlight to the square if its active-->
 						@if (selectedPosition?.rank == rank && selectedPosition?.file == file) {
-							<div class="highlight" style="width: 100%; height: 100%;"></div>
+							<div class="highlight"></div>
 						}
 
 						<!--Add a piece image to the square if a piece exists-->
 						@if (game()!.board.getPieceAtPosition({rank: rank, file: file})) {
 							<img class="piece-img" 
-								[src]="game()!.board.getPieceAtPosition({rank: rank, file: file})!.color + '_' + game()!.board.getPieceAtPosition({rank: rank, file: file})!.name + '.png'" 
-								[attr.alt]="game()!.board.getPieceAtPosition({rank: rank, file: file})!.color + '_' + game()!.board.getPieceAtPosition({rank: rank, file: file})!.name + '.png'" 
+								[src]="game()!.board.getPieceAtPosition({rank: rank, file: file})!.getImageSource()" 
 								draggable="false"
 							>
 						}
@@ -35,19 +50,28 @@
 								@if (game()!.board.getPieceAtPosition({rank: rank, file: file})) {
 									<div class="available-capture-dot"></div>
 								} @else {
-									<div class="available-move-dot highlight"></div>
+									<div class="available-move-dot"></div>
 								}
 							</div>
 						}
 					</div>
 				}
+				<div class="bg-dark-custom"></div>
 			}
 
 			<!-- File labels -->
-			<div></div>
+			<div class="bg-dark-custom"></div>
 			@for (file of files(); track file) {
-				<div class="label fw-bold text-light">{{file}}</div>
+				<div class="label bg-dark-custom fw-bold text-light">{{file}}</div>
 			}
+			<div class="bg-dark-custom"></div>
+			
+
+			<!-- Current User Info -->
+			<div class="player-container">
+				<span class="text-light fw-bold">{{usersAccount()?.username}}</span>
+				<span class="text-light fw-light"> ({{usersAccount()?.elo}})</span>
+			</div>
 		</div>
 	}
 </div>

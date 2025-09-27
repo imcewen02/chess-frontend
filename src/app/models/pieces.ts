@@ -30,6 +30,10 @@ export abstract class Piece {
      * @returns all moves the piece can take (making sure they do not cause check if enabled)
      */
     public abstract getAvailableMoves(board: Board, checkSafe: boolean): Position[] | null;
+
+    public getImageSource(): string {
+        return this.color + "_" + this.name + ".png";
+    }
 }
 
 export class Pawn extends Piece {
