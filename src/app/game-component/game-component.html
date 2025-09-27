@@ -10,6 +10,14 @@
 			<div class="player-container">
 				<span class="text-light fw-bold">{{opponentsAccount()?.username}}</span>
 				<span class="text-light fw-light  "> ({{opponentsAccount()?.elo}})</span>
+				<div>
+					@for (piece of opponentsWonMaterial(); track piece;) {
+						<img class="captured-piece-img"
+							[src]="piece.getImageSource()"
+							draggable="false"
+						>
+					}
+				</div>
 			</div>
 
 			<div class="bg-dark-custom"></div>
@@ -26,7 +34,7 @@
 			<!-- Board -->
 			@for (rank of ranks(); track rank;) {
 				<div class="label bg-dark-custom fw-bold text-light">{{rank}}</div>
-				@for (file of files(); track file; ) {
+				@for (file of files(); track file;) {
 					<div class="square"
 						(click)="onPositionClicked({rank: rank, file: file})"
 						[ngClass]="(rank + game()!.board.files.indexOf(file)) % 2 == 0 ? 'dark' : 'light'"
@@ -71,6 +79,14 @@
 			<div class="player-container">
 				<span class="text-light fw-bold">{{usersAccount()?.username}}</span>
 				<span class="text-light fw-light"> ({{usersAccount()?.elo}})</span>
+				<div>
+					@for (piece of usersWonMaterial(); track piece;) {
+						<img class="captured-piece-img"
+							[src]="piece.getImageSource()"
+							draggable="false"
+						>
+					}
+				</div>
 			</div>
 		</div>
 	}
