@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed } from '@angular/core';
+import { Component, computed, OnDestroy, signal } from '@angular/core';
 import { GameService } from '../services/game-service';
 import { AccountService } from '../services/account-service';
 import { Game } from '../models/game';
@@ -13,20 +13,76 @@ import { Account } from '../models/account';
 	templateUrl: './game-component.html',
 	styleUrl: './game-component.css'
 })
-export class GameComponent {
+export class GameComponent implements OnDestroy {
+	Color = Color;
+
 	protected game = computed<Game | null>(() => { return this.gameService.activeGame() ? this.gameService.activeGame()! : null });
 	protected ranks = computed<number[]>(() => { return this.game == null ? [] : this.usersColor() == Color.White ? [...this.game()!.board.ranks].reverse() : this.game()!.board.ranks });
 	protected files = computed<string[]>(() => { return this.game == null ? [] : this.usersColor() == Color.White ? this.game()!.board.files : [...this.game()!.board.files].reverse() });
 
-	protected opponentsAccount = computed<Account | null>(() => { return this.game == null ? null : this.game()!.whitePlayer.username == this.accountService.loggedInAccount()?.username ? this.game()!.blackPlayer : this.game()!.whitePlayer });
-	protected opponentsColor = computed<Color | null>(() => { return this.game() == null ? null : this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.Black : Color.White; });
-	protected opponentsWonMaterial = computed<Piece[]>(() => { return this.game() == null ? [] : this.getLostPiecesByColor(this.usersColor()!) });
+	private tick = signal<number>(Date.now()); //ticks once per second for timers
+	private tickSubscription: any = null;
 
-	protected usersAccount = computed<Account | null>(() => { return this.accountService.loggedInAccount(); });
-	protected usersColor = computed<Color | null>(() => { return this.game() == null ? null : this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.White : Color.Black; });
-	protected usersWonMaterial = computed<Piece[]>(() => { return this.game() == null ? [] : this.getLostPiecesByColor(this.opponentsColor()!) });
+	/*Opponents Computed Info Start*/
+	protected opponentsAccount = computed<Account | null>(() => { 
+		if (this.game() == null) return null;
+		const usersname = this.accountService.loggedInAccount()?.username;
+		return this.game()!.whitePlayer.username == usersname ? this.game()!.blackPlayer : this.game()!.whitePlayer ;
+	});
 
-	protected isUsersTurn = computed<Boolean>(() => { return this.game() == null ? false : this.game()!.currentTurn == this.usersColor(); });
+	protected opponentsColor = computed<Color | null>(() => { 
+		if (this.game() == null) return null;
+		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.Black : Color.White; 
+	});
+
+	protected opponentsTimeRemaining = computed<number | null>(() => { 
+		this.tick();
+		if (this.game() == null) return null;
+
+		const timeRemaining = (this.opponentsColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
+		if (this.game()?.currentTurn != this.opponentsColor()) return timeRemaining;
+
+		return timeRemaining - (Date.now() - this.game()!.currentTurnSince);
+	});
+
+	protected opponentsWonMaterial = computed<Piece[]>(() => { 
+		if (this.game() == null) return [];
+		return this.getLostPiecesByColor(this.usersColor()!) 
+	});
+	/*Opponents Computed Info End*/
+
+	/*Users Computed Info Start*/
+	protected usersAccount = computed<Account | null>(() => { 
+		if (this.game() == null) return null;
+		const usersname = this.accountService.loggedInAccount()?.username;
+		return this.game()!.whitePlayer.username == usersname ? this.game()!.whitePlayer : this.game()!.blackPlayer; 
+	});
+
+	protected usersColor = computed<Color | null>(() => { 
+		if (this.game == null) return null;
+		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.White : Color.Black; 
+	});
+
+	protected usersTimeRemaining = computed<number | null>(() => { 
+		this.tick();
+		if (this.game() == null) return null;
+
+		const timeRemaining = (this.usersColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
+		if (this.game()?.currentTurn != this.usersColor()) return timeRemaining;
+
+		return timeRemaining - (Date.now() - this.game()!.currentTurnSince);
+	});
+
+	protected usersWonMaterial = computed<Piece[]>(() => { 
+		if (this.game() == null) return [];
+		return this.getLostPiecesByColor(this.opponentsColor()!) 
+	});
+
+	protected isUsersTurn = computed<Boolean>(() => { 
+		if (this.game() == null) return false;
+		return this.game()!.currentTurn == this.usersColor(); 
+	});
+	/*Users Computed Info End*/
 
 	protected selectedPosition: Position | null = null; //The last clicked position
 
@@ -35,6 +91,11 @@ export class GameComponent {
 		private gameService: GameService
 	) {
 		this.gameService.joinQueue();
+		this.tickSubscription = setInterval(() => { this.tick.set(Date.now()) }, 10);
+	}
+
+	ngOnDestroy(): void {
+		if (this.tickSubscription) clearInterval(this.tickSubscription);
 	}
 
     /**
@@ -111,5 +172,18 @@ export class GameComponent {
 		if (kingLost) lostPieces.push(color == Color.White ? WKing() : BKing());
 
 		return lostPieces;
+	}
+
+    /**
+     * Turns a millisecond value into a string value for display
+	 * 
+	 * @param msRemaining: the ms remaining
+     * 
+     * @returns the display value
+     */
+	protected timeRemainingMsToLabel(msRemaining: number): string {
+		const minutes = Math.floor(msRemaining / 60000);
+		const seconds = Math.floor((msRemaining % 60000) / 1000);
+		return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 	}
 }

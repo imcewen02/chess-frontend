@@ -5,11 +5,18 @@
 			<div class="fw-bold text-light mt-3">Looking For Game...</div>
 		</div>
 	} @else {
-		<div class="board-container mt-5">
+		<div class="board-container">
 			<!-- Opponent Info -->
 			<div class="player-container">
-				<span class="text-light fw-bold">{{opponentsAccount()?.username}}</span>
-				<span class="text-light fw-light  "> ({{opponentsAccount()?.elo}})</span>
+				<div class="text-light">
+					<span class="fw-bold">{{opponentsAccount()?.username}}</span>
+					<span class="fw-light"> ({{opponentsAccount()?.elo}})</span>
+				</div>
+
+				<div class="player-timer fw-bold fs-5" [ngClass]="opponentsColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+					{{timeRemainingMsToLabel(opponentsTimeRemaining()!)}}
+				</div>
+
 				<div>
 					@for (piece of opponentsWonMaterial(); track piece;) {
 						<img class="captured-piece-img"
@@ -46,10 +53,7 @@
 
 						<!--Add a piece image to the square if a piece exists-->
 						@if (game()!.board.getPieceAtPosition({rank: rank, file: file})) {
-							<img class="piece-img" 
-								[src]="game()!.board.getPieceAtPosition({rank: rank, file: file})!.getImageSource()" 
-								draggable="false"
-							>
+							<img class="piece-img" [src]="game()!.board.getPieceAtPosition({rank: rank, file: file})!.getImageSource()" draggable="false">
 						}
 
 						<!--Add dot to the square if its a possible move-->
@@ -77,8 +81,15 @@
 
 			<!-- Current User Info -->
 			<div class="player-container">
-				<span class="text-light fw-bold">{{usersAccount()?.username}}</span>
-				<span class="text-light fw-light"> ({{usersAccount()?.elo}})</span>
+				<div class="text-light">
+					<span class="fw-bold">{{usersAccount()?.username}}</span>
+					<span class="fw-light"> ({{usersAccount()?.elo}})</span>
+				</div>
+
+				<div class="player-timer fw-bold fs-5" [ngClass]="usersColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+					{{timeRemainingMsToLabel(usersTimeRemaining()!)}}
+				</div>
+
 				<div>
 					@for (piece of usersWonMaterial(); track piece;) {
 						<img class="captured-piece-img"
