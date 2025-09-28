@@ -7,17 +7,17 @@
 	} @else {
 		<div class="board-container">
 			<!-- Opponent Info -->
-			<div class="player-container">
-				<div class="text-light">
+			<div class="player-container my-2 p-2" [ngClass]="opponentsColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+				<div>
 					<span class="fw-bold">{{opponentsAccount()?.username}}</span>
 					<span class="fw-light"> ({{opponentsAccount()?.elo}})</span>
 				</div>
 
-				<div class="player-timer fw-bold fs-5" [ngClass]="opponentsColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+				<div class="player-timer fw-bold fs-5">
 					{{timeRemainingMsToLabel(opponentsTimeRemaining()!)}}
 				</div>
 
-				<div>
+				<div class="players-captured-pieces">
 					@for (piece of opponentsWonMaterial(); track piece;) {
 						<img class="captured-piece-img"
 							[src]="piece.getImageSource()"
@@ -80,17 +80,17 @@
 			
 
 			<!-- Current User Info -->
-			<div class="player-container">
-				<div class="text-light">
+			<div class="player-container my-2 p-2" [ngClass]="usersColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+				<div>
 					<span class="fw-bold">{{usersAccount()?.username}}</span>
 					<span class="fw-light"> ({{usersAccount()?.elo}})</span>
 				</div>
 
-				<div class="player-timer fw-bold fs-5" [ngClass]="usersColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+				<div class="player-timer fw-bold fs-5">
 					{{timeRemainingMsToLabel(usersTimeRemaining()!)}}
 				</div>
 
-				<div>
+				<div class="players-captured-pieces">
 					@for (piece of usersWonMaterial(); track piece;) {
 						<img class="captured-piece-img"
 							[src]="piece.getImageSource()"
