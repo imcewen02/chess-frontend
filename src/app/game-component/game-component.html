@@ -101,4 +101,33 @@
 			</div>
 		</div>
 	}
+
+	<!-- Game End States -->
+	@if (game() != null && [
+			State.WhitePlayerWinByTime,
+			State.BlackPlayerWinByTime,
+			State.WhitePlayerWinByMate,
+			State.BlackPlayerWinByMate,
+			State.WhitePlayerWinByResignation,
+			State.BlackPlayerWinByResignation,
+			State.Stalemate,
+			State.Draw
+		].includes(game()!.currentState)
+	) {
+		<div class="overlay">
+			<div class="card border-success bg-dark-custom text-light text-center">
+				<div class="card-body">
+					@if (game()!.currentState == State.WhitePlayerWinByTime) { <h5 class="card-title fw-bold fs-3">White wins on time</h5> }
+					@if (game()!.currentState == State.BlackPlayerWinByTime) { <h5 class="card-title fw-bold fs-3">Black wins on time</h5> }
+					@if (game()!.currentState == State.WhitePlayerWinByMate) { <h5 class="card-title fw-bold fs-3">White wins by checkmate</h5> }
+					@if (game()!.currentState == State.BlackPlayerWinByMate) { <h5 class="card-title fw-bold fs-3">Black wins by checkmate</h5> }
+					@if (game()!.currentState == State.Stalemate) { <h5 class="card-title fw-bold fs-3">Game ends in stalemate</h5> }
+					@if (game()!.currentState == State.Draw) { <h5 class="card-title fw-bold fs-3">Game ends in draw</h5> }
+					<button type="button" class="btn btn-success btn-lg me-2 mt-2" (click)="router.navigateByUrl('/')">Return Home</button>
+					<button type="button" class="btn btn-success btn-lg ms-2 mt-2" (click)="router.navigateByUrl('/game')">Rejoin Queue</button>
+				</div>
+			</div>
+		</div>
+	}
+
 </div>

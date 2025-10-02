@@ -13,6 +13,19 @@ export interface Game {
 
 	board: Board;
 
-	currentTurn: Color;
-	currentTurnSince: number;
+	currentState: State;
+	stateUpdatedAt: number; //The last time the state was changed to the current state
+}
+
+export enum State {
+	WhitePlayersTurn,
+	BlackPlayersTurn,
+	WhitePlayerWinByTime,
+	BlackPlayerWinByTime,
+	WhitePlayerWinByMate,
+	BlackPlayerWinByMate,
+	WhitePlayerWinByResignation,
+	BlackPlayerWinByResignation,
+	Stalemate,
+	Draw
 }

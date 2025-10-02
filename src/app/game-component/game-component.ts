@@ -2,10 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, OnDestroy, signal } from '@angular/core';
 import { GameService } from '../services/game-service';
 import { AccountService } from '../services/account-service';
-import { Game } from '../models/game';
+import { Game, State } from '../models/game';
 import { Position } from '../models/position';
 import { BBishop, BKing, BKnight, BPawn, BQueen, BRook, Color, Name, Piece, WBishop, WKing, WKnight, WPawn, WQueen, WRook } from "../models/pieces";
 import { Account } from '../models/account';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-game-component',
@@ -15,10 +16,13 @@ import { Account } from '../models/account';
 })
 export class GameComponent implements OnDestroy {
 	Color = Color;
+	State = State;
 
 	protected game = computed<Game | null>(() => { return this.gameService.activeGame() ? this.gameService.activeGame()! : null });
 	protected ranks = computed<number[]>(() => { return this.game == null ? [] : this.usersColor() == Color.White ? [...this.game()!.board.ranks].reverse() : this.game()!.board.ranks });
 	protected files = computed<string[]>(() => { return this.game == null ? [] : this.usersColor() == Color.White ? this.game()!.board.files : [...this.game()!.board.files].reverse() });
+
+	protected selectedPosition: Position | null = null; //The last clicked position
 
 	private tick = signal<number>(Date.now()); //ticks once per second for timers
 	private tickSubscription: any = null;
@@ -35,14 +39,19 @@ export class GameComponent implements OnDestroy {
 		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.Black : Color.White; 
 	});
 
+	protected isOpponentsTurn = computed<Boolean>(() => { 
+		if (this.game() == null) return false;
+		return this.opponentsColor() == Color.White ? this.game()?.currentState == State.WhitePlayersTurn : this.game()?.currentState == State.BlackPlayersTurn; 
+	});
+
 	protected opponentsTimeRemaining = computed<number | null>(() => { 
 		this.tick();
 		if (this.game() == null) return null;
 
 		const timeRemaining = (this.opponentsColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
-		if (this.game()?.currentTurn != this.opponentsColor()) return timeRemaining;
+		if (!this.isOpponentsTurn()) return timeRemaining;
 
-		return timeRemaining - (Date.now() - this.game()!.currentTurnSince);
+		return timeRemaining - (Date.now() - this.game()!.stateUpdatedAt);
 	});
 
 	protected opponentsWonMaterial = computed<Piece[]>(() => { 
@@ -63,30 +72,29 @@ export class GameComponent implements OnDestroy {
 		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.White : Color.Black; 
 	});
 
+	protected isUsersTurn = computed<Boolean>(() => { 
+		if (this.game() == null) return false;
+		return this.usersColor() == Color.White ? this.game()?.currentState == State.WhitePlayersTurn : this.game()?.currentState == State.BlackPlayersTurn; 
+	});
+
 	protected usersTimeRemaining = computed<number | null>(() => { 
 		this.tick();
 		if (this.game() == null) return null;
 
 		const timeRemaining = (this.usersColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
-		if (this.game()?.currentTurn != this.usersColor()) return timeRemaining;
+		if (!this.isUsersTurn()) return timeRemaining;
 
-		return timeRemaining - (Date.now() - this.game()!.currentTurnSince);
+		return timeRemaining - (Date.now() - this.game()!.stateUpdatedAt);
 	});
 
 	protected usersWonMaterial = computed<Piece[]>(() => { 
 		if (this.game() == null) return [];
 		return this.getLostPiecesByColor(this.opponentsColor()!) 
 	});
-
-	protected isUsersTurn = computed<Boolean>(() => { 
-		if (this.game() == null) return false;
-		return this.game()!.currentTurn == this.usersColor(); 
-	});
 	/*Users Computed Info End*/
 
-	protected selectedPosition: Position | null = null; //The last clicked position
-
 	constructor(
+		protected router: Router,
 		private accountService: AccountService,
 		private gameService: GameService
 	) {
@@ -179,11 +187,11 @@ export class GameComponent implements OnDestroy {
 	 * 
 	 * @param msRemaining: the ms remaining
      * 
-     * @returns the display value
+     * @returns the display value (stopping at 0)
      */
 	protected timeRemainingMsToLabel(msRemaining: number): string {
-		const minutes = Math.floor(msRemaining / 60000);
-		const seconds = Math.floor((msRemaining % 60000) / 1000);
+		const minutes = msRemaining < 0 ? 0 : Math.floor(msRemaining / 60000);
+		const seconds = msRemaining < 0 ? 0 : Math.floor((msRemaining % 60000) / 1000);
 		return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 	}
 }

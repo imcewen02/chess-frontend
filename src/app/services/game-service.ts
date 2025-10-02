@@ -60,6 +60,6 @@ export class GameService {
 	}
 
 	public movePiece(origin: Position, destination: Position): void {
-		this.socketService.emit('games:movePiece', origin, destination);
+		this.socketService.emit('games:movePiece', this.activeGame()?.uuid, origin, destination);
 	}
 }
