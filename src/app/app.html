@@ -6,10 +6,6 @@
 		</a>
 
 		<div>
-			@if (gameService.activeGame() != null && router.url != '/game') {
-				<button class="btn btn-sm btn-outline-light me-2" type="button" (click)="router.navigateByUrl('/game')">Return To Game</button>
-			}
-
 			@if (accountService.loggedInAccount() != null) {
 				<button class="btn btn-sm btn-outline-light me-2" type="button" (click)="accountService.logout(); router.navigateByUrl('/')">Logout</button>
 			} @else {

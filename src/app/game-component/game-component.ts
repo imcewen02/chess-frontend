@@ -1,12 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnDestroy, signal } from '@angular/core';
-import { GameService } from '../services/game-service';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { AccountService } from '../services/account-service';
 import { Game, State } from '../models/game';
 import { Position } from '../models/position';
 import { BBishop, BKing, BKnight, BPawn, BQueen, BRook, Color, Name, Piece, WBishop, WKing, WKnight, WPawn, WQueen, WRook } from "../models/pieces";
 import { Account } from '../models/account';
 import { Router } from '@angular/router';
+import { ToastService } from '../services/toast-service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Board } from '../models/board';
+import { SocketService } from '../services/socket-service';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-game-component',
@@ -14,96 +18,69 @@ import { Router } from '@angular/router';
 	templateUrl: './game-component.html',
 	styleUrl: './game-component.css'
 })
-export class GameComponent implements OnDestroy {
+export class GameComponent implements OnInit, OnDestroy {
 	Color = Color;
 	State = State;
 
-	protected game = computed<Game | null>(() => { return this.gameService.activeGame() ? this.gameService.activeGame()! : null });
-	protected ranks = computed<number[]>(() => { return this.game == null ? [] : this.usersColor() == Color.White ? [...this.game()!.board.ranks].reverse() : this.game()!.board.ranks });
-	protected files = computed<string[]>(() => { return this.game == null ? [] : this.usersColor() == Color.White ? this.game()!.board.files : [...this.game()!.board.files].reverse() });
+	private tick = signal<number>(Date.now()); //ticks once per second for timers
+	private tickSubscription: number | null = null;
+
+	protected game = signal<Game | null>(null);
+	private gameUpdateSubscription: Subscription | null = null;
 
 	protected selectedPosition: Position | null = null; //The last clicked position
-
-	private tick = signal<number>(Date.now()); //ticks once per second for timers
-	private tickSubscription: any = null;
-
-	/*Opponents Computed Info Start*/
-	protected opponentsAccount = computed<Account | null>(() => { 
-		if (this.game() == null) return null;
-		const usersname = this.accountService.loggedInAccount()?.username;
-		return this.game()!.whitePlayer.username == usersname ? this.game()!.blackPlayer : this.game()!.whitePlayer ;
-	});
-
-	protected opponentsColor = computed<Color | null>(() => { 
-		if (this.game() == null) return null;
-		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.Black : Color.White; 
-	});
-
-	protected isOpponentsTurn = computed<Boolean>(() => { 
-		if (this.game() == null) return false;
-		return this.opponentsColor() == Color.White ? this.game()?.currentState == State.WhitePlayersTurn : this.game()?.currentState == State.BlackPlayersTurn; 
-	});
-
-	protected opponentsTimeRemaining = computed<number | null>(() => { 
-		this.tick();
-		if (this.game() == null) return null;
-
-		const timeRemaining = (this.opponentsColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
-		if (!this.isOpponentsTurn()) return timeRemaining;
-
-		return timeRemaining - (Date.now() - this.game()!.stateUpdatedAt);
-	});
-
-	protected opponentsWonMaterial = computed<Piece[]>(() => { 
-		if (this.game() == null) return [];
-		return this.getLostPiecesByColor(this.usersColor()!) 
-	});
-	/*Opponents Computed Info End*/
-
-	/*Users Computed Info Start*/
-	protected usersAccount = computed<Account | null>(() => { 
-		if (this.game() == null) return null;
-		const usersname = this.accountService.loggedInAccount()?.username;
-		return this.game()!.whitePlayer.username == usersname ? this.game()!.whitePlayer : this.game()!.blackPlayer; 
-	});
-
-	protected usersColor = computed<Color | null>(() => { 
-		if (this.game == null) return null;
-		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.White : Color.Black; 
-	});
-
-	protected isUsersTurn = computed<Boolean>(() => { 
-		if (this.game() == null) return false;
-		return this.usersColor() == Color.White ? this.game()?.currentState == State.WhitePlayersTurn : this.game()?.currentState == State.BlackPlayersTurn; 
-	});
-
-	protected usersTimeRemaining = computed<number | null>(() => { 
-		this.tick();
-		if (this.game() == null) return null;
-
-		const timeRemaining = (this.usersColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
-		if (!this.isUsersTurn()) return timeRemaining;
-
-		return timeRemaining - (Date.now() - this.game()!.stateUpdatedAt);
-	});
-
-	protected usersWonMaterial = computed<Piece[]>(() => { 
-		if (this.game() == null) return [];
-		return this.getLostPiecesByColor(this.opponentsColor()!) 
-	});
-	/*Users Computed Info End*/
 
 	constructor(
 		protected router: Router,
 		private accountService: AccountService,
-		private gameService: GameService
+		private socketService: SocketService,
+		private toastService: ToastService
 	) {
-		this.gameService.joinQueue();
-		this.tickSubscription = setInterval(() => { this.tick.set(Date.now()) }, 10);
+		this.gameUpdateSubscription = this.socketService.listen("games:gameUpdate").subscribe( (gameJson: any) => { 
+			this.game.set({ ...gameJson, board: new Board(gameJson.board.squares) });
+		});
+	}
+
+	async ngOnInit(): Promise<void> {
+		this.game.set(await this.getUsersActiveGame());
+
+		this.socketService.emit("games:joinQueue", null);
+
+		this.tickSubscription = setInterval(() => { this.tick.set(Date.now()) }, 1000);
 	}
 
 	ngOnDestroy(): void {
 		if (this.tickSubscription) clearInterval(this.tickSubscription);
+
+		if (this.gameUpdateSubscription) {
+			this.gameUpdateSubscription.unsubscribe();
+		}	
+	}
+
+	/**
+	 * Loads the users active game from the server
+	 * 
+	 * @returns their active game or null if there is none
+	 */
+	private async getUsersActiveGame(): Promise<Game | null> {
+        try {
+			const loggedInUsername = this.accountService.loggedInAccount()?.username;
+			if (loggedInUsername == null) return null;
+
+			const gameJson: any = await this.accountService.getAccountsActiveGame(loggedInUsername);
+			if (gameJson == null) return null;
+
+			const game: Game = { ...gameJson, board: new Board(gameJson.board.squares) };
+            return game;
+        } catch (err) {
+            if (err instanceof HttpErrorResponse) {
+                this.toastService.showToast({title: `${err.status} API Error`, message: err.error.error, type: 'danger', autoHideDelay: 3000})
+            } else {
+                this.toastService.showToast({title: 'Unexpected Error', message: 'Unable to fetch current game', type: 'danger', autoHideDelay: 3000})
+            }
+        }
+
+		return null;
 	}
 
     /**
@@ -119,7 +96,7 @@ export class GameComponent implements OnDestroy {
 		}
 
 		if (this.isPositionInSelectedPiecesLegalMoves(position)) {
-			this.gameService.movePiece(this.selectedPosition!, position);
+			this.socketService.emit('games:movePiece', this.game()?.uuid, this.selectedPosition!, position);
 			this.selectedPosition = null;
 		} else if (this.game()!.board.getPieceAtPosition(position)?.color == this.usersColor()) {
 			this.selectedPosition = position;
@@ -194,4 +171,80 @@ export class GameComponent implements OnDestroy {
 		const seconds = msRemaining < 0 ? 0 : Math.floor((msRemaining % 60000) / 1000);
 		return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 	}
+
+	protected ranks = computed<number[]>(() => { 
+		if (this.game() == null) return [];
+		return this.usersColor() == Color.White ? [...this.game()!.board.ranks].reverse() : this.game()!.board.ranks 
+	});
+
+	protected files = computed<string[]>(() => { 
+		if (this.game() == null) return []
+		return this.usersColor() == Color.White ? this.game()!.board.files : [...this.game()!.board.files].reverse() 
+	});
+
+	/*Opponents Computed Info Start*/
+	protected opponentsAccount = computed<Account | null>(() => { 
+		if (this.game() == null) return null;
+		const usersname = this.accountService.loggedInAccount()?.username;
+		return this.game()!.whitePlayer.username == usersname ? this.game()!.blackPlayer : this.game()!.whitePlayer ;
+	});
+
+	protected opponentsColor = computed<Color | null>(() => { 
+		if (this.game() == null) return null;
+		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.Black : Color.White; 
+	});
+
+	protected isOpponentsTurn = computed<Boolean>(() => { 
+		if (this.game() == null) return false;
+		return this.opponentsColor() == Color.White ? this.game()?.currentState == State.WhitePlayersTurn : this.game()?.currentState == State.BlackPlayersTurn; 
+	});
+
+	protected opponentsTimeRemaining = computed<number | null>(() => { 
+		this.tick();
+		if (this.game() == null) return null;
+
+		const timeRemaining = (this.opponentsColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
+		if (!this.isOpponentsTurn()) return timeRemaining;
+
+		return timeRemaining - (Date.now() - this.game()!.stateUpdatedAt);
+	});
+
+	protected opponentsWonMaterial = computed<Piece[]>(() => { 
+		if (this.game() == null) return [];
+		return this.getLostPiecesByColor(this.usersColor()!) 
+	});
+	/*Opponents Computed Info End*/
+
+	/*Users Computed Info Start*/
+	protected usersAccount = computed<Account | null>(() => { 
+		if (this.game() == null) return null;
+		const usersname = this.accountService.loggedInAccount()?.username;
+		return this.game()!.whitePlayer.username == usersname ? this.game()!.whitePlayer : this.game()!.blackPlayer; 
+	});
+
+	protected usersColor = computed<Color | null>(() => { 
+		if (this.game == null) return null;
+		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.White : Color.Black; 
+	});
+
+	protected isUsersTurn = computed<Boolean>(() => { 
+		if (this.game() == null) return false;
+		return this.usersColor() == Color.White ? this.game()?.currentState == State.WhitePlayersTurn : this.game()?.currentState == State.BlackPlayersTurn; 
+	});
+
+	protected usersTimeRemaining = computed<number | null>(() => { 
+		this.tick();
+		if (this.game() == null) return null;
+
+		const timeRemaining = (this.usersColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
+		if (!this.isUsersTurn()) return timeRemaining;
+
+		return timeRemaining - (Date.now() - this.game()!.stateUpdatedAt);
+	});
+
+	protected usersWonMaterial = computed<Piece[]>(() => { 
+		if (this.game() == null) return [];
+		return this.getLostPiecesByColor(this.opponentsColor()!) 
+	});
+	/*Users Computed Info End*/
 }

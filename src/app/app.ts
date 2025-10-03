@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { ToastComponent } from "./toast-component/toast-component";
 import { AccountService } from './services/account-service';
-import { GameService } from './services/game-service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +12,6 @@ import { GameService } from './services/game-service';
 export class App {
 	constructor(
 		protected router: Router, 
-		protected accountService: AccountService,
-    protected gameService: GameService
+		protected accountService: AccountService
 	) { }
 }

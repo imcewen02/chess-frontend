@@ -4,7 +4,6 @@ import { AccountService } from '../services/account-service';
 import { ToastService } from '../services/toast-service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Account } from '../models/account';
-import { GameService } from '../services/game-service';
 
 @Component({
 	selector: 'app-home-component',
@@ -18,7 +17,6 @@ export class HomeComponent implements OnInit {
 	constructor(
 		protected router: Router, 
 		protected accountService: AccountService,
-		protected gameService: GameService,
 		private toastService: ToastService
 	) { }
 
