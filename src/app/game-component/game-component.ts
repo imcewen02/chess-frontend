@@ -36,6 +36,8 @@ export class GameComponent implements OnInit, OnDestroy {
 		private socketService: SocketService,
 		private toastService: ToastService
 	) {
+		this.tickSubscription = setInterval(() => { this.tick.set(Date.now()) }, 1000);
+
 		this.gameUpdateSubscription = this.socketService.listen("games:gameUpdate").subscribe( (gameJson: any) => { 
 			this.game.set({ ...gameJson, board: new Board(gameJson.board.squares) });
 		});
@@ -44,9 +46,9 @@ export class GameComponent implements OnInit, OnDestroy {
 	async ngOnInit(): Promise<void> {
 		this.game.set(await this.getUsersActiveGame());
 
-		this.socketService.emit("games:joinQueue", null);
-
-		this.tickSubscription = setInterval(() => { this.tick.set(Date.now()) }, 1000);
+		if (this.game() == null) {
+			this.socketService.emit("games:joinQueue", null);
+		}
 	}
 
 	ngOnDestroy(): void {
@@ -139,7 +141,7 @@ export class GameComponent implements OnInit, OnDestroy {
 		}
 
 		for (let lostRooks = 2 - remainingPieces.filter(piece => piece.name == Name.Rook).length; lostRooks > 0; lostRooks--) {
-			lostPieces.push(color == Color.White ? WRook() : BRook());
+			lostPieces.push(color == Color.White ? WRook(false) : BRook(false));
 		}
 
 		for (let lostKnights = 2 - remainingPieces.filter(piece => piece.name == Name.Knight).length; lostKnights > 0; lostKnights--) {
@@ -154,7 +156,7 @@ export class GameComponent implements OnInit, OnDestroy {
 		if (queenLost) lostPieces.push(color == Color.White ? WQueen() : BQueen());
 
 		const kingLost = !remainingPieces?.some(piece => piece.name == Name.King);
-		if (kingLost) lostPieces.push(color == Color.White ? WKing() : BKing());
+		if (kingLost) lostPieces.push(color == Color.White ? WKing(false) : BKing(false));
 
 		return lostPieces;
 	}
@@ -178,7 +180,7 @@ export class GameComponent implements OnInit, OnDestroy {
 	});
 
 	protected files = computed<string[]>(() => { 
-		if (this.game() == null) return []
+		if (this.game() == null) return [];
 		return this.usersColor() == Color.White ? this.game()!.board.files : [...this.game()!.board.files].reverse() 
 	});
 
