@@ -124,7 +124,7 @@
 					@if (game()!.currentState == State.Stalemate) { <h5 class="card-title fw-bold fs-3">Game ends in stalemate</h5> }
 					@if (game()!.currentState == State.Draw) { <h5 class="card-title fw-bold fs-3">Game ends in draw</h5> }
 					<button type="button" class="btn btn-success btn-lg me-2 mt-2" (click)="router.navigateByUrl('/')">Return Home</button>
-					<button type="button" class="btn btn-success btn-lg ms-2 mt-2" (click)="router.navigateByUrl('/game')">Rejoin Queue</button>
+					<button type="button" class="btn btn-success btn-lg ms-2 mt-2" (click)="this.game.set(null); this.joinQueue()">Rejoin Queue</button>
 				</div>
 			</div>
 		</div>

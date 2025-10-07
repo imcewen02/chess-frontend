@@ -46,9 +46,7 @@ export class GameComponent implements OnInit, OnDestroy {
 	async ngOnInit(): Promise<void> {
 		this.game.set(await this.getUsersActiveGame());
 
-		if (this.game() == null) {
-			this.socketService.emit("games:joinQueue", null);
-		}
+		if (this.game() == null) this.joinQueue();
 	}
 
 	ngOnDestroy(): void {
@@ -57,6 +55,13 @@ export class GameComponent implements OnInit, OnDestroy {
 		if (this.gameUpdateSubscription) {
 			this.gameUpdateSubscription.unsubscribe();
 		}	
+	}
+
+	/**
+	 * Attempts to join the game queue
+	 */
+	protected joinQueue(): void {
+		this.socketService.emit("games:joinQueue", null);
 	}
 
 	/**
