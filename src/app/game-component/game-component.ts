@@ -45,6 +45,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
 	async ngOnInit(): Promise<void> {
 		this.game.set(await this.getUsersActiveGame());
+		console.log(this.game())
 
 		if (this.game() == null) this.joinQueue();
 	}
