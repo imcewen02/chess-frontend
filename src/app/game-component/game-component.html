@@ -26,7 +26,8 @@
 			</div>
 		</div>
 
-		<div class="board-container bg-dark-custom">
+		<div class="board-container">
+			<div class="bg-dark-custom" style="border-radius: 8px 0px 0px 0px;"></div>
 			<div class="bg-dark-custom"></div>
 			<div class="bg-dark-custom"></div>
 			<div class="bg-dark-custom"></div>
@@ -35,8 +36,7 @@
 			<div class="bg-dark-custom"></div>
 			<div class="bg-dark-custom"></div>
 			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom" style="border-radius: 0px 8px 0px 0px;"></div>
 
 			@for (rank of ranks(); track rank;) {
 				<div class="label bg-dark-custom fw-bold text-light">{{rank}}</div>
@@ -71,11 +71,11 @@
 			}
 
 			<!-- File labels -->
-			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom" style="border-radius: 0px 0px 0px 8px;"></div>
 			@for (file of files(); track file) {
 				<div class="label bg-dark-custom fw-bold text-light">{{file}}</div>
 			}
-			<div class="bg-dark-custom"></div>
+			<div class="bg-dark-custom" style="border-radius: 0px 0px 8px 0px;"></div>
 		</div>
 
 		<!-- Current User Info -->
