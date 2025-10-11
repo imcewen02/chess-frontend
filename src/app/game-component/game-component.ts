@@ -20,6 +20,7 @@ import { Subscription } from 'rxjs';
 })
 export class GameComponent implements OnInit, OnDestroy {
 	Color = Color;
+	Name = Name;
 	State = State;
 
 	private tick = signal<number>(Date.now()); //ticks once per second for timers

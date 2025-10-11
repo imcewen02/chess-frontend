@@ -58,7 +58,7 @@
 						<!--Add dot to the square if its a possible move-->
 						@if (isPositionInSelectedPiecesLegalMoves({rank: rank, file: file})) {
 							<div class="available-move-container">
-								@if (game()!.board.getPieceAtPosition({rank: rank, file: file}, true)) {
+								@if (game()!.board.getPieceAtPosition({rank: rank, file: file}, game()!.board.getPieceAtPosition(selectedPosition!)?.name == Name.Pawn)) {
 									<div class="available-capture-dot"></div>
 								} @else {
 									<div class="available-move-dot"></div>
