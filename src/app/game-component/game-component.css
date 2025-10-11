@@ -5,9 +5,8 @@
   grid-template-rows: 75px minmax(0, 1fr) 75px;
   gap: 10px;
 
-  height: calc(100vh - 56px);
-  width: calc(100vw - 20px);
-  margin: auto;
+  height: min(calc(100vh - var(--navbar-height)), calc(100vw + 175px));
+  width: min(calc(100vh - var(--navbar-height) - 175px), 100vw);
 }
 
 /**********Player Info**********/
@@ -20,12 +19,12 @@
   border-radius: 8px;
 }
 
-.player-timer {
+.player-timer-container {
   grid-column: 2;
-  grid-row: 1 / span 2;
+  grid-row: 1 / 3;
 }
 
-.players-captured-pieces {
+.players-captured-pieces-container {
   height: 30px;
 }
 
@@ -45,12 +44,6 @@
   grid-template-columns: 1fr repeat(8, 4fr) 1fr;
 
   user-select: none;
-
-  aspect-ratio: 1 / 1;
-
-  width: min(100%, calc(100vh - 56px - 150px - 20px));
-  height: min(100%, calc(100vh - 56px - 150px - 20px));
-  margin: auto;
 }
 
 .label {

@@ -1,4 +1,4 @@
-<div class="game-container">
+<div class="game-container p-4">
 	@if (game() == null) {
 		<div class="overlay">
 			<div class="spinner-border text-light"></div>
@@ -12,11 +12,11 @@
 				<span class="fw-light"> ({{opponentsAccount()?.elo}})</span>
 			</div>
 
-			<div class="player-timer fw-bold fs-5">
+			<div class="player-timer-container fw-bold fs-5">
 				{{timeRemainingMsToLabel(opponentsTimeRemaining()!)}}
 			</div>
 
-			<div class="players-captured-pieces">
+			<div class="players-captured-pieces-container">
 				@for (piece of opponentsWonMaterial(); track piece;) {
 					<img class="captured-piece-img"
 						[src]="piece.getImageSource()"
@@ -85,11 +85,11 @@
 				<span class="fw-light"> ({{usersAccount()?.elo}})</span>
 			</div>
 
-			<div class="player-timer fw-bold fs-5">
+			<div class="player-timer-container fw-bold fs-5">
 				{{timeRemainingMsToLabel(usersTimeRemaining()!)}}
 			</div>
 
-			<div class="players-captured-pieces">
+			<div class="players-captured-pieces-container">
 				@for (piece of usersWonMaterial(); track piece;) {
 					<img class="captured-piece-img"
 						[src]="piece.getImageSource()"
