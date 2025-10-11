@@ -1,27 +1,20 @@
-/* ===============================
-   Layout
-   =============================== */
-.board-container {
+/**********Layout**********/
+.game-container {
   display: grid;
-  grid-template-rows: auto 30px repeat(8, 75px) 30px auto; /* player info, rank labels, board rows, file labels, player info */
-  grid-template-columns: 30px repeat(8, 75px) 30px;        /* file labels + squares + padding */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 75px minmax(0, 1fr) 75px;
+  gap: 10px;
 
-  /* Prevent accidental text selection */
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  height: calc(100vh - 56px);
+  width: calc(100vw - 20px);
+  margin: auto;
 }
 
-/* ===============================
-   Player Info
-   =============================== */
+/**********Player Info**********/
 .player-container {
-  grid-column: 1 / span 10;
-
   display: grid;
-  grid-template-columns: 1fr auto; /* left = name/elo/pieces, right = timer */
-  grid-template-rows: auto auto;   /* row 1 = name+elo, row 2 = captured pieces */
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
   align-items: center;
 
   border-radius: 8px;
@@ -29,7 +22,7 @@
 
 .player-timer {
   grid-column: 2;
-  grid-row: 1 / span 2; /* span both rows */
+  grid-row: 1 / span 2;
 }
 
 .players-captured-pieces {
@@ -40,9 +33,34 @@
   height: 100%;
 }
 
-/* ===============================
-   Board Squares
-   =============================== */
+/**********Chat**********/
+.chat-container {
+  border-radius: 8px;
+}
+
+/**********Board**********/
+.board-container {
+  display: grid;
+  grid-template-rows: 1fr repeat(8, 4fr) 1fr;
+  grid-template-columns: 1fr repeat(8, 4fr) 1fr;
+
+  user-select: none;
+
+  aspect-ratio: 1 / 1;
+
+  width: min(100%, calc(100vh - 56px - 150px - 20px));
+  height: min(100%, calc(100vh - 56px - 150px - 20px));
+  margin: auto;
+}
+
+.label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/**********Squares**********/
 .square {
   position: relative;
 }
@@ -57,9 +75,6 @@
   height: 100%;
 }
 
-/* ===============================
-   Move Indicators
-   =============================== */
 .available-move-container {
   width: 100%;
   height: 100%;
@@ -85,9 +100,6 @@
   opacity: 70%;
 }
 
-/* ===============================
-   Square Colors & Highlights
-   =============================== */
 .dark {
   background-color: var(--bs-success);
 }
@@ -103,9 +115,7 @@
   opacity: 70%;
 }
 
-/* ===============================
-   Overlay (Waiting for game)
-   =============================== */
+/**********Overlay**********/
 .overlay {
   position: absolute;
   top: 0;
@@ -118,14 +128,4 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-}
-
-/* ===============================
-   Labels (Ranks & Files)
-   =============================== */
-.label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
 }

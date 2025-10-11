@@ -1,32 +1,32 @@
-<div class="container-fluid d-flex justify-content-center">
+<div class="game-container">
 	@if (game() == null) {
 		<div class="overlay">
 			<div class="spinner-border text-light"></div>
 			<div class="fw-bold text-light mt-3">Looking For Game...</div>
 		</div>
 	} @else {
-		<div class="board-container">
-			<!-- Opponent Info -->
-			<div class="player-container my-2 p-2" [ngClass]="opponentsColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
-				<div>
-					<span class="fw-bold">{{opponentsAccount()?.username}}</span>
-					<span class="fw-light"> ({{opponentsAccount()?.elo}})</span>
-				</div>
-
-				<div class="player-timer fw-bold fs-5">
-					{{timeRemainingMsToLabel(opponentsTimeRemaining()!)}}
-				</div>
-
-				<div class="players-captured-pieces">
-					@for (piece of opponentsWonMaterial(); track piece;) {
-						<img class="captured-piece-img"
-							[src]="piece.getImageSource()"
-							draggable="false"
-						>
-					}
-				</div>
+		<!-- Opponent Info -->
+		<div class="player-container p-2" [ngClass]="opponentsColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+			<div>
+				<span class="fw-bold">{{opponentsAccount()?.username}}</span>
+				<span class="fw-light"> ({{opponentsAccount()?.elo}})</span>
 			</div>
 
+			<div class="player-timer fw-bold fs-5">
+				{{timeRemainingMsToLabel(opponentsTimeRemaining()!)}}
+			</div>
+
+			<div class="players-captured-pieces">
+				@for (piece of opponentsWonMaterial(); track piece;) {
+					<img class="captured-piece-img"
+						[src]="piece.getImageSource()"
+						draggable="false"
+					>
+				}
+			</div>
+		</div>
+
+		<div class="board-container bg-dark-custom">
 			<div class="bg-dark-custom"></div>
 			<div class="bg-dark-custom"></div>
 			<div class="bg-dark-custom"></div>
@@ -38,7 +38,6 @@
 			<div class="bg-dark-custom"></div>
 			<div class="bg-dark-custom"></div>
 
-			<!-- Board -->
 			@for (rank of ranks(); track rank;) {
 				<div class="label bg-dark-custom fw-bold text-light">{{rank}}</div>
 				@for (file of files(); track file;) {
@@ -77,27 +76,26 @@
 				<div class="label bg-dark-custom fw-bold text-light">{{file}}</div>
 			}
 			<div class="bg-dark-custom"></div>
-			
+		</div>
 
-			<!-- Current User Info -->
-			<div class="player-container my-2 p-2" [ngClass]="usersColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
-				<div>
-					<span class="fw-bold">{{usersAccount()?.username}}</span>
-					<span class="fw-light"> ({{usersAccount()?.elo}})</span>
-				</div>
+		<!-- Current User Info -->
+		<div class="player-container p-2" [ngClass]="usersColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+			<div>
+				<span class="fw-bold">{{usersAccount()?.username}}</span>
+				<span class="fw-light"> ({{usersAccount()?.elo}})</span>
+			</div>
 
-				<div class="player-timer fw-bold fs-5">
-					{{timeRemainingMsToLabel(usersTimeRemaining()!)}}
-				</div>
+			<div class="player-timer fw-bold fs-5">
+				{{timeRemainingMsToLabel(usersTimeRemaining()!)}}
+			</div>
 
-				<div class="players-captured-pieces">
-					@for (piece of usersWonMaterial(); track piece;) {
-						<img class="captured-piece-img"
-							[src]="piece.getImageSource()"
-							draggable="false"
-						>
-					}
-				</div>
+			<div class="players-captured-pieces">
+				@for (piece of usersWonMaterial(); track piece;) {
+					<img class="captured-piece-img"
+						[src]="piece.getImageSource()"
+						draggable="false"
+					>
+				}
 			</div>
 		</div>
 	}
@@ -129,5 +127,4 @@
 			</div>
 		</div>
 	}
-
 </div>
