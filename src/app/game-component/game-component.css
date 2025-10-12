@@ -1,15 +1,17 @@
 /**********Layout**********/
 .game-container {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 350px;
   grid-template-rows: 75px minmax(0, 1fr) 75px;
   gap: 10px;
 
-  height: min(calc(100vh - var(--navbar-height)), calc(100vw + 170px));
+  height: min(calc(100vh - var(--navbar-height)), calc(100vw - 190px));
   min-height: 600px;
 
-  width: min(calc(100vh - var(--navbar-height) - 170px), 100vw);
-  min-width: 430px;
+  width: min(calc(100vh - var(--navbar-height) + 190px), 100vw);
+  min-width: 790px;
+
+  margin: auto;
 }
 
 /**********Player Info**********/
@@ -37,6 +39,9 @@
 
 /**********Chat**********/
 .chat-container {
+  grid-column: 2;
+  grid-row: 1 / 4;
+
   border-radius: 8px;
 }
 
