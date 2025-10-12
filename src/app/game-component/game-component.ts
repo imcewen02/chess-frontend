@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, HostListener, OnDestroy, OnInit, signal } from '@angular/core';
 import { AccountService } from '../services/account-service';
 import { Game, State } from '../models/game';
 import { Position } from '../models/position';
@@ -44,14 +44,14 @@ export class GameComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	async ngOnInit(): Promise<void> {
+	public async ngOnInit(): Promise<void> {
 		this.game.set(await this.getUsersActiveGame());
 		console.log(this.game())
 
 		if (this.game() == null) this.joinQueue();
 	}
 
-	ngOnDestroy(): void {
+	public ngOnDestroy(): void {
 		if (this.tickSubscription) clearInterval(this.tickSubscription);
 
 		if (this.gameUpdateSubscription) {
@@ -166,6 +166,11 @@ export class GameComponent implements OnInit, OnDestroy {
 		if (kingLost) lostPieces.push(color == Color.White ? WKing(false) : BKing(false));
 
 		return lostPieces;
+	}
+
+	@HostListener('click')
+	onClick() {
+		this.selectedPosition = null;
 	}
 
     /**
