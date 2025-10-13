@@ -34,19 +34,19 @@
 					[ngClass]="(rank + game().board.files.indexOf(file)) % 2 == 0 ? 'dark' : 'light'"
 				>
 					<!--Add a highlight to the square if its active-->
-					@if (selectedPosition?.rank == rank && selectedPosition?.file == file) {
+					@if (selectedPiece != null && game().board.getPositionOfPiece(selectedPiece)?.file == file && game().board.getPositionOfPiece(selectedPiece)?.rank == rank) {
 						<div class="highlight"></div>
 					}
 
 					<!--Add a piece image to the square if a piece exists-->
 					@if (game().board.getPieceAtPosition({rank: rank, file: file})) {
-						<img class="piece-img" [src]="game().board.getPieceAtPosition({rank: rank, file: file})!.getImageSource()" draggable="false">
+						<img class="board-piece-img" [src]="game().board.getPieceAtPosition({rank: rank, file: file})!.getImageSource()" draggable="false">
 					}
 
 					<!--Add dot to the square if its a possible move-->
 					@if (isPositionInSelectedPiecesLegalMoves({rank: rank, file: file})) {
 						<div class="available-move-container">
-							@if (game().board.getPieceAtPosition({rank: rank, file: file}, game().board.getPieceAtPosition(selectedPosition!)!.name == Name.Pawn)) {
+							@if (game().board.getPieceAtPosition({rank: rank, file: file}, selectedPiece?.name == Name.Pawn)) {
 								<div class="available-capture-dot"></div>
 							} @else {
 								<div class="available-move-dot"></div>
@@ -65,6 +65,38 @@
 		}
 		<div class="bg-dark-custom" style="border-radius: 0px 0px 8px 0px;"></div>
 
+		<!-- Pawn Promotion Overlay -->
+		@if (awaitingPawnPromotion) {
+			<div class="board-overlay">
+				<div class="card border-success bg-dark-custom text-light text-center">
+					<div class="card-body">
+						<div class="col-12">
+							<button type="button" class="btn btn-lg btn-success m-2" (click)="onPawnPromotionConfirmed(Name.Rook)">
+								<img style="width: 50px;" [src]="usersColor() + '_' + Name.Rook + '.png'" draggable="false">
+							</button>
+
+							<button type="button" class="btn btn-lg btn-success m-2" (click)="onPawnPromotionConfirmed(Name.Knight)">
+								<img style="width: 50px;" [src]="usersColor() + '_' + Name.Knight + '.png'" draggable="false">
+							</button>
+
+							<button type="button" class="btn btn-lg btn-success m-2" (click)="onPawnPromotionConfirmed(Name.Bishop)">
+								<img style="width: 50px;" [src]="usersColor() + '_' + Name.Bishop + '.png'" draggable="false">
+							</button>
+
+							<button type="button" class="btn btn-lg btn-success m-2" (click)="onPawnPromotionConfirmed(Name.Queen)">
+								<img style="width: 50px;" [src]="usersColor() + '_' + Name.Queen + '.png'" draggable="false">
+							</button>
+						</div>
+
+						<button type="button" class="btn btn-lg btn-danger m-2" (click)="awaitingPawnPromotion = false; selectedPiece = null;">
+							Cancel
+						</button>
+					</div>
+				</div>
+			</div>
+		}
+
+		<!-- Looking For Game Overlay -->
 		@if (game().currentState == State.NotStarted) {
 			<div class="board-overlay">
 				<div class="spinner-border text-light"></div>
@@ -72,6 +104,7 @@
 			</div>
 		}
 
+		<!-- Game Over Overlay -->
 		@if (GAME_OVER_STATES.includes(game().currentState)) {
 			<div class="board-overlay">
 				<div class="card border-success bg-dark-custom text-light text-center">

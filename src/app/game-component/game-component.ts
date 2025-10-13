@@ -30,8 +30,10 @@ export class GameComponent implements OnInit, OnDestroy {
 	private gameUpdateSubscription: Subscription;
 	protected game = signal<Game>({} as Game);
 
-	protected selectedPosition: Position | null = null; //The last clicked position
-	@HostListener('click') onClick() { this.selectedPosition = null; }
+	protected awaitingPawnPromotion: boolean = false;
+	protected lastClickedPosition: Position | null = null;
+	protected selectedPiece: Piece | null = null;
+	@HostListener('click') onClick() { this.lastClickedPosition = null; this.selectedPiece = null; }
 
 	constructor(
 		protected router: Router,
@@ -40,6 +42,9 @@ export class GameComponent implements OnInit, OnDestroy {
 		private toastService: ToastService
 	) {
 		this.tickSubscription = setInterval(() => { this.tick.set(Date.now()) }, 1000);
+		this.gameUpdateSubscription = this.socketService.listen("games:gameUpdate").subscribe( (gameJson: any) => { 
+			this.game.set({ ...gameJson, board: new Board(gameJson.board.squares) });
+		});
 
 		this.game.set({
 			uuid: "",
@@ -51,10 +56,6 @@ export class GameComponent implements OnInit, OnDestroy {
 			currentState: State.NotStarted,
 			stateUpdatedAt: 0
 		})
-
-		this.gameUpdateSubscription = this.socketService.listen("games:gameUpdate").subscribe( (gameJson: any) => { 
-			this.game.set({ ...gameJson, board: new Board(gameJson.board.squares) });
-		});
 	}
 
 	public async ngOnInit(): Promise<void> {
@@ -68,10 +69,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
 	public ngOnDestroy(): void {
 		if (this.tickSubscription) clearInterval(this.tickSubscription);
-
-		if (this.gameUpdateSubscription) {
-			this.gameUpdateSubscription.unsubscribe();
-		}	
+		if (this.gameUpdateSubscription) this.gameUpdateSubscription.unsubscribe();
 	}
 
 	/**
@@ -111,28 +109,43 @@ export class GameComponent implements OnInit, OnDestroy {
      * Handles board interaction (checking for available moves, moving pieces, etc.)
 	 * Interaction is only available during the users turn
      * 
-     * @param position the position that was clicked
+     * @param clickedPosition the position that was clicked
      */
-	protected onPositionClicked(position: Position): void {
+	protected onPositionClicked(clickedPosition: Position): void {
+		this.lastClickedPosition = clickedPosition;
+
 		if (!this.isUsersTurn()) {
-			this.selectedPosition = null;
+			this.selectedPiece == null;
 			return;
-		}
+		};
 
-		if (this.isPositionInSelectedPiecesLegalMoves(position)) {
-			const pieceMoving = this.game()!.board.getPieceAtPosition(this.selectedPosition!);
-			if (pieceMoving?.name == Name.Pawn && position.rank == (pieceMoving.color == Color.White ? 8 : 1)) {
-				//Pawn Promotion
-
+		if (this.isPositionInSelectedPiecesLegalMoves(this.lastClickedPosition)) {
+			//Move the selected piece
+			if (this.selectedPiece?.name == Name.Pawn && this.lastClickedPosition.rank == (this.selectedPiece?.color == Color.White ? 8 : 1)) {
+				this.awaitingPawnPromotion = true;
+				return;
 			}
 			
-			this.socketService.emit('games:movePiece', this.game()?.uuid, this.selectedPosition!, position);
-			this.selectedPosition = null;
-		} else if (this.game()!.board.getPieceAtPosition(position)?.color == this.usersColor()) {
-			this.selectedPosition = position;
+			console.log(this.game().board.getPositionOfPiece(this.selectedPiece!), this.lastClickedPosition)
+			this.socketService.emit('games:movePiece', this.game().uuid, this.game().board.getPositionOfPiece(this.selectedPiece!), this.lastClickedPosition);
+			this.selectedPiece = null;
 		} else {
-			this.selectedPosition = null;
+			//Select your own piece
+			const pieceAtClickedPosition = this.game().board.getPieceAtPosition(this.lastClickedPosition);
+			if (pieceAtClickedPosition?.color == this.usersColor()) this.selectedPiece = pieceAtClickedPosition;
 		}
+	}
+
+    /**
+     * Handles the confirmation of a pawn promotion, sending a special move instruction
+     * 
+     * @param promoteTo the name of the piece to promote to
+     */
+	protected onPawnPromotionConfirmed(promoteTo: Name): void {
+		console.log(this.game().board.getPositionOfPiece(this.selectedPiece!), this.lastClickedPosition, promoteTo)
+		this.socketService.emit('games:movePiece', this.game().uuid, this.game().board.getPositionOfPiece(this.selectedPiece!), this.lastClickedPosition, promoteTo);
+		this.selectedPiece = null;
+		this.awaitingPawnPromotion = false;
 	}
 
     /**
@@ -143,12 +156,8 @@ export class GameComponent implements OnInit, OnDestroy {
      * @returns if the provided position is one of the moves of the piece at the selected position
      */
 	protected isPositionInSelectedPiecesLegalMoves(position: Position): boolean {
-		if (this.game() == null) return false;
-
-		const pieceAtSelectedPosition = this.selectedPosition ? this.game()!.board.getPieceAtPosition(this.selectedPosition) : null;
-		if (!pieceAtSelectedPosition) return false;
-
-		return pieceAtSelectedPosition.getAvailableMoves(this.game()!.board, true)!.some(move => move.rank == position.rank && move.file == position.file)
+		if (this.selectedPiece == null) return false;
+		return this.selectedPiece.getAvailableMoves(this.game().board, true)!.some(move => move.rank == position.rank && move.file == position.file)
 	}
 
     /**
@@ -159,9 +168,7 @@ export class GameComponent implements OnInit, OnDestroy {
      * @returns the pieces that have been lost by the given color
      */
 	private getLostPiecesByColor(color: Color): Piece[] {
-		if (this.game() == null) return [];
-
-		const remainingPieces = this.game()!.board.getPiecesByColor(color);
+		const remainingPieces = this.game().board.getPiecesByColor(color);
 		const lostPieces: Piece[] = [];
 
 		for (let lostPawns = 8 - remainingPieces.filter(piece => piece.name == Name.Pawn).length; lostPawns > 0; lostPawns--) {
@@ -225,78 +232,67 @@ export class GameComponent implements OnInit, OnDestroy {
 
 	/*Board Computed Info Start*/
 	protected ranks = computed<number[]>(() => { 
-		if (this.game() == null) return [];
-		return this.usersColor() == Color.White ? [...this.game()!.board.ranks].reverse() : this.game()!.board.ranks 
+		return this.usersColor() == Color.White ? [...this.game().board.ranks].reverse() : this.game().board.ranks 
 	});
 
 	protected files = computed<string[]>(() => { 
-		if (this.game() == null) return [];
-		return this.usersColor() == Color.White ? this.game()!.board.files : [...this.game()!.board.files].reverse() 
+		return this.usersColor() == Color.White ? this.game().board.files : [...this.game().board.files].reverse() 
 	});
 	/*Board Computed Info End*/
 
 	/*Opponents Computed Info Start*/
 	protected opponentsAccount = computed<Account | null>(() => { 
-		if (this.game() == null) return null;
 		const usersname = this.accountService.loggedInAccount()?.username;
-		return this.game()!.whitePlayer.username == usersname ? this.game()!.blackPlayer : this.game()!.whitePlayer ;
+		return this.game().whitePlayer.username == usersname ? this.game().blackPlayer : this.game().whitePlayer ;
 	});
 
 	protected opponentsColor = computed<Color | null>(() => { 
-		if (this.game() == null) return null;
-		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.Black : Color.White; 
+		return this.game().whitePlayer.username == this.usersAccount()?.username ? Color.Black : Color.White; 
 	});
 
 	protected isOpponentsTurn = computed<Boolean>(() => { 
-		if (this.game() == null) return false;
 		return this.opponentsColor() == Color.White ? this.game()?.currentState == State.WhitePlayersTurn : this.game()?.currentState == State.BlackPlayersTurn; 
 	});
 
 	protected opponentsTimeRemaining = computed<number | null>(() => { 
 		this.tick();
-		if (this.game() == null) return null;
 
-		const timeRemaining = (this.opponentsColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
+		const timeRemaining = (this.opponentsColor() == Color.White ? this.game().whiteTimeRemaining : this.game().blackTimeRemaining)
 		if (!this.isOpponentsTurn()) return timeRemaining;
 
-		return timeRemaining - (Date.now() - this.game()!.stateUpdatedAt);
+		return timeRemaining - (Date.now() - this.game().stateUpdatedAt);
 	});
 
 	protected opponentsWonMaterial = computed<Piece[]>(() => { 
-		if (this.game() == null) return [];
 		return this.getLostPiecesByColor(this.usersColor()!) 
 	});
 	/*Opponents Computed Info End*/
 
 	/*Users Computed Info Start*/
 	protected usersAccount = computed<Account | null>(() => { 
-		if (this.game() == null) return null;
 		const usersname = this.accountService.loggedInAccount()?.username;
-		return this.game()!.whitePlayer.username == usersname ? this.game()!.whitePlayer : this.game()!.blackPlayer; 
+		return this.game().whitePlayer.username == usersname ? this.game().whitePlayer : this.game().blackPlayer; 
 	});
 
 	protected usersColor = computed<Color | null>(() => { 
 		if (this.game == null) return null;
-		return this.game()!.whitePlayer.username == this.usersAccount()?.username ? Color.White : Color.Black; 
+		return this.game().whitePlayer.username == this.usersAccount()?.username ? Color.White : Color.Black; 
 	});
 
 	protected isUsersTurn = computed<Boolean>(() => { 
-		if (this.game() == null) return false;
 		return this.usersColor() == Color.White ? this.game()?.currentState == State.WhitePlayersTurn : this.game()?.currentState == State.BlackPlayersTurn; 
 	});
 
 	protected usersTimeRemaining = computed<number | null>(() => { 
 		this.tick();
-		if (this.game() == null) return null;
 
-		const timeRemaining = (this.usersColor() == Color.White ? this.game()!.whiteTimeRemaining : this.game()!.blackTimeRemaining)
+		const timeRemaining = (this.usersColor() == Color.White ? this.game().whiteTimeRemaining : this.game().blackTimeRemaining)
 		if (!this.isUsersTurn()) return timeRemaining;
 
-		return timeRemaining - (Date.now() - this.game()!.stateUpdatedAt);
+		return timeRemaining - (Date.now() - this.game().stateUpdatedAt);
 	});
 
 	protected usersWonMaterial = computed<Piece[]>(() => { 
-		if (this.game() == null) return [];
 		return this.getLostPiecesByColor(this.opponentsColor()!) 
 	});
 	/*Users Computed Info End*/
