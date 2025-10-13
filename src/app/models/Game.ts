@@ -1,6 +1,5 @@
 import { Account } from "./account";
 import { Board } from "./board";
-import { Color } from "./pieces";
 
 export interface Game {
 	uuid: string;
@@ -18,6 +17,7 @@ export interface Game {
 }
 
 export enum State {
+	NotStarted,
 	WhitePlayersTurn,
 	BlackPlayersTurn,
 	WhitePlayerWinByTime,
@@ -29,3 +29,5 @@ export enum State {
 	Stalemate,
 	Draw
 }
+
+export const GAME_OVER_STATES: State[] = [State.WhitePlayerWinByTime, State.BlackPlayerWinByTime, State.WhitePlayerWinByMate, State.BlackPlayerWinByMate, State.WhitePlayerWinByResignation, State.BlackPlayerWinByResignation, State.Draw, State.Stalemate];

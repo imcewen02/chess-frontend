@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, HostListener, OnDestroy, OnInit, signal } from '@angular/core';
 import { AccountService } from '../services/account-service';
-import { Game, State } from '../models/game';
+import { Game, GAME_OVER_STATES, State } from '../models/game';
 import { Position } from '../models/position';
 import { BBishop, BKing, BKnight, BPawn, BQueen, BRook, Color, Name, Piece, WBishop, WKing, WKnight, WPawn, WQueen, WRook } from "../models/pieces";
 import { Account } from '../models/account';
@@ -22,14 +22,16 @@ export class GameComponent implements OnInit, OnDestroy {
 	Color = Color;
 	Name = Name;
 	State = State;
+	GAME_OVER_STATES = GAME_OVER_STATES;
 
 	private tick = signal<number>(Date.now()); //ticks once per second for timers
-	private tickSubscription: number | null = null;
+	private tickSubscription: number;
 
-	protected game = signal<Game | null>(null);
-	private gameUpdateSubscription: Subscription | null = null;
+	private gameUpdateSubscription: Subscription;
+	protected game = signal<Game>({} as Game);
 
 	protected selectedPosition: Position | null = null; //The last clicked position
+	@HostListener('click') onClick() { this.selectedPosition = null; }
 
 	constructor(
 		protected router: Router,
@@ -39,16 +41,29 @@ export class GameComponent implements OnInit, OnDestroy {
 	) {
 		this.tickSubscription = setInterval(() => { this.tick.set(Date.now()) }, 1000);
 
+		this.game.set({
+			uuid: "",
+			whitePlayer: this.accountService.loggedInAccount()!,
+			whiteTimeRemaining: 0,
+			blackPlayer: {username: "???", elo: 0} as Account,
+			blackTimeRemaining: 0,
+			board: new Board(null),
+			currentState: State.NotStarted,
+			stateUpdatedAt: 0
+		})
+
 		this.gameUpdateSubscription = this.socketService.listen("games:gameUpdate").subscribe( (gameJson: any) => { 
 			this.game.set({ ...gameJson, board: new Board(gameJson.board.squares) });
 		});
 	}
 
 	public async ngOnInit(): Promise<void> {
-		this.game.set(await this.getUsersActiveGame());
-		console.log(this.game())
-
-		if (this.game() == null) this.joinQueue();
+		const usersActiveGame = await this.getUsersActiveGame();
+		if (usersActiveGame != null) {
+			this.game.set(usersActiveGame);
+		} else {
+			this.joinQueue();
+		}
 	}
 
 	public ngOnDestroy(): void {
@@ -105,6 +120,12 @@ export class GameComponent implements OnInit, OnDestroy {
 		}
 
 		if (this.isPositionInSelectedPiecesLegalMoves(position)) {
+			const pieceMoving = this.game()!.board.getPieceAtPosition(this.selectedPosition!);
+			if (pieceMoving?.name == Name.Pawn && position.rank == (pieceMoving.color == Color.White ? 8 : 1)) {
+				//Pawn Promotion
+
+			}
+			
 			this.socketService.emit('games:movePiece', this.game()?.uuid, this.selectedPosition!, position);
 			this.selectedPosition = null;
 		} else if (this.game()!.board.getPieceAtPosition(position)?.color == this.usersColor()) {
@@ -168,11 +189,6 @@ export class GameComponent implements OnInit, OnDestroy {
 		return lostPieces;
 	}
 
-	@HostListener('click')
-	onClick() {
-		this.selectedPosition = null;
-	}
-
     /**
      * Turns a millisecond value into a string value for display
 	 * 
@@ -186,6 +202,28 @@ export class GameComponent implements OnInit, OnDestroy {
 		return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 	}
 
+	/**
+     * Turns a state value into a string value for display
+	 * 
+	 * @param state: the state to get the label for
+     * 
+     * @returns the display value
+     */
+	protected getModalLabelFromEndState(state: State): string {
+		switch(state) {
+			case State.WhitePlayerWinByMate: return "White Player Wins By Mate";
+			case State.WhitePlayerWinByTime: return "White Player Wins On Time";
+			case State.WhitePlayerWinByResignation: return "White Player Wins By Resignation";
+			case State.BlackPlayerWinByMate: return "Black Player Wins By Mate";
+			case State.BlackPlayerWinByTime: return "Black Player Wins On Time";
+			case State.BlackPlayerWinByResignation: return "Black Player Wins By Resignation";
+			case State.Stalemate: return "Game Ends In Stalemate";
+			case State.Draw: return "Game Ends In Draw";
+			default: return "An Error Ocurred!";
+		}
+	}
+
+	/*Board Computed Info Start*/
 	protected ranks = computed<number[]>(() => { 
 		if (this.game() == null) return [];
 		return this.usersColor() == Color.White ? [...this.game()!.board.ranks].reverse() : this.game()!.board.ranks 
@@ -195,6 +233,7 @@ export class GameComponent implements OnInit, OnDestroy {
 		if (this.game() == null) return [];
 		return this.usersColor() == Color.White ? this.game()!.board.files : [...this.game()!.board.files].reverse() 
 	});
+	/*Board Computed Info End*/
 
 	/*Opponents Computed Info Start*/
 	protected opponentsAccount = computed<Account | null>(() => { 

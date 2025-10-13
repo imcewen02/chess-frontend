@@ -47,6 +47,8 @@
 
 /**********Board**********/
 .board-container {
+  position: relative;
+
   display: grid;
   grid-template-rows: 1fr repeat(8, 3fr) 1fr;
   grid-template-columns: 1fr repeat(8, 3fr) 1fr;
@@ -62,6 +64,24 @@
 
   min-height: 0;
   font-size: 0.8rem;
+}
+
+.board-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
 }
 
 /**********Squares**********/
@@ -117,19 +137,4 @@
   height: 100%;
   background-color: var(--bs-warning);
   opacity: 70%;
-}
-
-/**********Overlay**********/
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
 }

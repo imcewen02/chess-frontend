@@ -1,136 +1,113 @@
 <div class="game-container p-4">
-	@if (game() == null) {
-		<div class="overlay">
-			<div class="spinner-border text-light"></div>
-			<div class="fw-bold text-light mt-3">Looking For Game...</div>
-		</div>
-	} @else {
-		<!-- Opponent Info -->
-		<div class="player-container p-2" [ngClass]="opponentsColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
-			<div>
-				<span class="fw-bold">{{opponentsAccount()?.username}}</span>
-				<span class="fw-light"> ({{opponentsAccount()?.elo}})</span>
-			</div>
-
-			<div class="player-timer-container fw-bold fs-5">
-				{{timeRemainingMsToLabel(opponentsTimeRemaining()!)}}
-			</div>
-
-			<div class="players-captured-pieces-container">
-				@for (piece of opponentsWonMaterial(); track piece;) {
-					<img class="captured-piece-img"
-						[src]="piece.getImageSource()"
-						draggable="false"
-					>
-				}
-			</div>
+	<!-- Opponent Info -->
+	<div class="player-container p-2" [ngClass]="opponentsColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+		<div>
+			<span class="fw-bold">{{opponentsAccount()?.username}}</span>
+			<span class="fw-light"> ({{opponentsAccount()?.elo}})</span>
 		</div>
 
-		<!-- Board -->
-		<div class="board-container" (click)="$event.stopPropagation()">
-			<div class="bg-dark-custom" style="border-radius: 8px 0px 0px 0px;"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom"></div>
-			<div class="bg-dark-custom" style="border-radius: 0px 8px 0px 0px;"></div>
+		<div class="player-timer-container fw-bold fs-5">
+			{{timeRemainingMsToLabel(opponentsTimeRemaining()!)}}
+		</div>
 
-			@for (rank of ranks(); track rank;) {
-				<div class="label bg-dark-custom fw-bold text-light">{{rank}}</div>
-				@for (file of files(); track file;) {
-					<div class="square"
-						(click)="onPositionClicked({rank: rank, file: file})"
-						[ngClass]="(rank + game()!.board.files.indexOf(file)) % 2 == 0 ? 'dark' : 'light'"
-					>
-						<!--Add a highlight to the square if its active-->
-						@if (selectedPosition?.rank == rank && selectedPosition?.file == file) {
-							<div class="highlight"></div>
-						}
+		<div class="players-captured-pieces-container">
+			@for (piece of opponentsWonMaterial(); track piece;) {
+				<img class="captured-piece-img"
+					[src]="piece.getImageSource()"
+					draggable="false"
+				>
+			}
+		</div>
+	</div>
 
-						<!--Add a piece image to the square if a piece exists-->
-						@if (game()!.board.getPieceAtPosition({rank: rank, file: file})) {
-							<img class="piece-img" [src]="game()!.board.getPieceAtPosition({rank: rank, file: file})!.getImageSource()" draggable="false">
-						}
+	<!-- Board -->
+	<div class="board-container" (click)="$event.stopPropagation()">
+		<!-- Top Border -->
+		<div class="bg-dark-custom" style="border-radius: 8px 8px 0px 0px; grid-column: 1 / 11;"></div>
 
-						<!--Add dot to the square if its a possible move-->
-						@if (isPositionInSelectedPiecesLegalMoves({rank: rank, file: file})) {
-							<div class="available-move-container">
-								@if (game()!.board.getPieceAtPosition({rank: rank, file: file}, game()!.board.getPieceAtPosition(selectedPosition!)?.name == Name.Pawn)) {
-									<div class="available-capture-dot"></div>
-								} @else {
-									<div class="available-move-dot"></div>
-								}
-							</div>
-						}
+		<!-- Squares -->
+		@for (rank of ranks(); track rank;) {
+			<div class="label bg-dark-custom fw-bold text-light">{{rank}}</div>
+			@for (file of files(); track file;) {
+				<div class="square"
+					(click)="onPositionClicked({rank: rank, file: file})"
+					[ngClass]="(rank + game().board.files.indexOf(file)) % 2 == 0 ? 'dark' : 'light'"
+				>
+					<!--Add a highlight to the square if its active-->
+					@if (selectedPosition?.rank == rank && selectedPosition?.file == file) {
+						<div class="highlight"></div>
+					}
+
+					<!--Add a piece image to the square if a piece exists-->
+					@if (game().board.getPieceAtPosition({rank: rank, file: file})) {
+						<img class="piece-img" [src]="game().board.getPieceAtPosition({rank: rank, file: file})!.getImageSource()" draggable="false">
+					}
+
+					<!--Add dot to the square if its a possible move-->
+					@if (isPositionInSelectedPiecesLegalMoves({rank: rank, file: file})) {
+						<div class="available-move-container">
+							@if (game().board.getPieceAtPosition({rank: rank, file: file}, game().board.getPieceAtPosition(selectedPosition!)!.name == Name.Pawn)) {
+								<div class="available-capture-dot"></div>
+							} @else {
+								<div class="available-move-dot"></div>
+							}
+						</div>
+					}
+				</div>
+			}
+			<div class="bg-dark-custom"></div>
+		}
+
+		<!-- File labels -->
+		<div class="bg-dark-custom" style="border-radius: 0px 0px 0px 8px;"></div>
+		@for (file of files(); track file) {
+			<div class="label bg-dark-custom fw-bold text-light">{{file}}</div>
+		}
+		<div class="bg-dark-custom" style="border-radius: 0px 0px 8px 0px;"></div>
+
+		@if (game().currentState == State.NotStarted) {
+			<div class="board-overlay">
+				<div class="spinner-border text-light"></div>
+				<div class="fw-bold text-light mt-3">Looking For Game...</div>
+			</div>
+		}
+
+		@if (GAME_OVER_STATES.includes(game().currentState)) {
+			<div class="board-overlay">
+				<div class="card border-success bg-dark-custom text-light text-center">
+					<div class="card-body">
+						<h5 class="card-title fw-bold fs-3">{{getModalLabelFromEndState(game().currentState)}}</h5>
+						<button type="button" class="btn btn-success btn-lg me-2 mt-2" (click)="router.navigateByUrl('/')">Return Home</button>
+						<button type="button" class="btn btn-success btn-lg ms-2 mt-2" (click)="this.joinQueue()">Rejoin Queue</button>
 					</div>
-				}
-				<div class="bg-dark-custom"></div>
-			}
-
-			<!-- File labels -->
-			<div class="bg-dark-custom" style="border-radius: 0px 0px 0px 8px;"></div>
-			@for (file of files(); track file) {
-				<div class="label bg-dark-custom fw-bold text-light">{{file}}</div>
-			}
-			<div class="bg-dark-custom" style="border-radius: 0px 0px 8px 0px;"></div>
-		</div>
-
-		<!-- Current User Info -->
-		<div class="player-container p-2" [ngClass]="usersColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
-			<div>
-				<span class="fw-bold">{{usersAccount()?.username}}</span>
-				<span class="fw-light"> ({{usersAccount()?.elo}})</span>
-			</div>
-
-			<div class="player-timer-container fw-bold fs-5">
-				{{timeRemainingMsToLabel(usersTimeRemaining()!)}}
-			</div>
-
-			<div class="players-captured-pieces-container">
-				@for (piece of usersWonMaterial(); track piece;) {
-					<img class="captured-piece-img"
-						[src]="piece.getImageSource()"
-						draggable="false"
-					>
-				}
-			</div>
-		</div>
-
-		<!-- Chat -->
-		<div class="chat-container bg-dark-custom">
-		
-		</div>
-	}
-
-	<!-- Game End States -->
-	@if (game() != null && [
-			State.WhitePlayerWinByTime,
-			State.BlackPlayerWinByTime,
-			State.WhitePlayerWinByMate,
-			State.BlackPlayerWinByMate,
-			State.WhitePlayerWinByResignation,
-			State.BlackPlayerWinByResignation,
-			State.Stalemate,
-			State.Draw
-		].includes(game()!.currentState)
-	) {
-		<div class="overlay">
-			<div class="card border-success bg-dark-custom text-light text-center">
-				<div class="card-body">
-					@if (game()!.currentState == State.WhitePlayerWinByTime) { <h5 class="card-title fw-bold fs-3">White wins on time</h5> }
-					@if (game()!.currentState == State.BlackPlayerWinByTime) { <h5 class="card-title fw-bold fs-3">Black wins on time</h5> }
-					@if (game()!.currentState == State.WhitePlayerWinByMate) { <h5 class="card-title fw-bold fs-3">White wins by checkmate</h5> }
-					@if (game()!.currentState == State.BlackPlayerWinByMate) { <h5 class="card-title fw-bold fs-3">Black wins by checkmate</h5> }
-					@if (game()!.currentState == State.Stalemate) { <h5 class="card-title fw-bold fs-3">Game ends in stalemate</h5> }
-					@if (game()!.currentState == State.Draw) { <h5 class="card-title fw-bold fs-3">Game ends in draw</h5> }
-					<button type="button" class="btn btn-success btn-lg me-2 mt-2" (click)="router.navigateByUrl('/')">Return Home</button>
-					<button type="button" class="btn btn-success btn-lg ms-2 mt-2" (click)="this.game.set(null); this.joinQueue()">Rejoin Queue</button>
 				</div>
 			</div>
+		}
+	</div>
+
+	<!-- Current User Info -->
+	<div class="player-container p-2" [ngClass]="usersColor() == Color.White ? 'bg-light' : 'bg-dark-custom text-light'">
+		<div>
+			<span class="fw-bold">{{usersAccount()?.username}}</span>
+			<span class="fw-light"> ({{usersAccount()?.elo}})</span>
 		</div>
-	}
+
+		<div class="player-timer-container fw-bold fs-5">
+			{{timeRemainingMsToLabel(usersTimeRemaining()!)}}
+		</div>
+
+		<div class="players-captured-pieces-container">
+			@for (piece of usersWonMaterial(); track piece;) {
+				<img class="captured-piece-img"
+					[src]="piece.getImageSource()"
+					draggable="false"
+				>
+			}
+		</div>
+	</div>
+
+	<!-- Chat -->
+	<div class="chat-container bg-dark-custom">
+	
+	</div>
 </div>
