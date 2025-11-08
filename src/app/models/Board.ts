@@ -162,6 +162,42 @@ export class Board {
     }
 
     /**
+     * Gets the captured material of the given color
+	 * 
+	 * @param color the color to get the captured material for
+     * 
+     * @returns the pieces that have been captured of the given color
+     */
+	public getCapturedPiecesByColor(color: Color): Piece[] {
+		const remainingPieces = this.getPiecesByColor(color);
+		const lostPieces: Piece[] = [];
+
+		for (let lostPawns = 8 - remainingPieces.filter(piece => piece.name == Name.Pawn).length; lostPawns > 0; lostPawns--) {
+			lostPieces.push(color == Color.White ? WPawn() : BPawn());
+		}
+
+		for (let lostRooks = 2 - remainingPieces.filter(piece => piece.name == Name.Rook).length; lostRooks > 0; lostRooks--) {
+			lostPieces.push(color == Color.White ? WRook(false) : BRook(false));
+		}
+
+		for (let lostKnights = 2 - remainingPieces.filter(piece => piece.name == Name.Knight).length; lostKnights > 0; lostKnights--) {
+			lostPieces.push(color == Color.White ? WKnight() : BKnight());
+		}
+
+		for (let lostBishops = 2 - remainingPieces.filter(piece => piece.name == Name.Bishop).length; lostBishops > 0; lostBishops--) {
+			lostPieces.push(color == Color.White ? WBishop() : BBishop());
+		}
+
+		const queenLost = !remainingPieces?.some(piece => piece.name == Name.Queen);
+		if (queenLost) lostPieces.push(color == Color.White ? WQueen() : BQueen());
+
+		const kingLost = !remainingPieces?.some(piece => piece.name == Name.King);
+		if (kingLost) lostPieces.push(color == Color.White ? WKing(false) : BKing(false));
+
+		return lostPieces;
+	}
+
+    /**
      * Checks if the king of the given color is currently in check
      *
      * @param color: the color of the king to check

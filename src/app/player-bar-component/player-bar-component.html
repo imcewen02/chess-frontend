@@ -1,0 +1,16 @@
+<div class="player-container p-2" [ngClass]="this.color == this.COLOR_OPTIONS.White ? 'bg-light' : 'bg-dark-custom text-light'">
+    <div>
+        <span class="fw-bold">{{this.account?.username ?? '???'}}</span>
+        <span class="fw-light"> ({{this.account?.elo ?? '???'}})</span>
+    </div>
+
+    <div class="player-timer-container fw-bold fs-5">
+        {{this.getTimeRemainingLabel(this.timeRemainingMs)}}
+    </div>
+
+    <div class="players-captured-pieces-container">
+        @for (piece of this.capturedPieces; track piece;) {
+            <img class="captured-piece-img" [src]="piece.getImageSource()" draggable="false">
+        }
+    </div>
+</div>

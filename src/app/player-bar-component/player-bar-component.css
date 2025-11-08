@@ -1,0 +1,21 @@
+.player-container {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+
+  border-radius: 8px;
+}
+
+.player-timer-container {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.players-captured-pieces-container {
+  height: 30px;
+}
+
+.captured-piece-img {
+  height: 100%;
+}
