@@ -1,30 +1,32 @@
-<div class="game-container p-4">
-	<!-- Opponent Info -->
-	<player-bar-component 
-		[account]="this.opponentsAccount()" 
-		[color]="this.opponentsColor()"
-		[timeRemainingMs]="this.opponentsTimeRemaining()"
-		[capturedPieces]="this.opponentsCapturedPieces()">
-	</player-bar-component>
+<div class="home-container">
+	<div class="game-container">
+		<!-- Opponent Info -->
+		<player-bar-component 
+			[account]="this.opponentsAccount()" 
+			[color]="this.opponentsColor()"
+			[timeRemainingMs]="this.opponentsTimeRemaining()"
+			[capturedPieces]="this.opponentsCapturedPieces()">
+		</player-bar-component>
 
-	<!-- Board -->
-	<board-component 
-		[board]="this.board()" 
-		[usersColor]="this.usersColor()"
-		[isUsersTurn]="this.isUsersTurn()"
-		(moveEvent)="this.movePiece($event)">
-	</board-component>
+		<!-- Board -->
+		<board-component 
+			[board]="this.board()" 
+			[usersColor]="this.usersColor()"
+			[isUsersTurn]="this.isUsersTurn()"
+			(moveEvent)="this.movePiece($event)">
+		</board-component>
 
-	<!-- Current User Info -->
-	<player-bar-component 
-		[account]="this.accountService.loggedInAccount()" 
-		[color]="this.usersColor()"
-		[timeRemainingMs]="this.usersTimeRemaining()"
-		[capturedPieces]="this.usersCapturedPieces()">
-	</player-bar-component>
+		<!-- Current User Info -->
+		<player-bar-component 
+			[account]="this.accountService.loggedInAccount()" 
+			[color]="this.usersColor()"
+			[timeRemainingMs]="this.usersTimeRemaining()"
+			[capturedPieces]="this.usersCapturedPieces()">
+		</player-bar-component>
+	</div>
 
 	<!-- Chat -->
-	<div class="chat-container bg-dark-custom">
+	<div class="sidebar-container bg-dark-custom px-3">
 		<ul class="nav nav-underline nav-fill">
 			<li class="nav-item">
 				<a class="nav-link text-light fw-bold" aria-current="page" href="#">Games</a>

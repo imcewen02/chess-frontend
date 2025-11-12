@@ -1,23 +1,46 @@
-/**********Layout**********/
-.game-container {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 350px;
-  grid-template-rows: 75px minmax(0, 1fr) 75px;
+.home-container {
+  display: flex;
+  justify-content: center;
   gap: 10px;
-
-  height: min(calc(100vh - var(--navbar-height)), calc(100vw - 190px));
-  min-height: 600px;
-
-  width: min(calc(100vh - var(--navbar-height) + 190px), 100vw);
-  min-width: 790px;
-
-  margin: auto;
+  padding: 20px;
+  height: min(calc(100vh - var(--navbar-height)), 100vw + 200px);
 }
 
-/**********Chat**********/
-.chat-container {
-  grid-column: 2;
-  grid-row: 1 / 4;
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: min(calc(100vh - var(--navbar-height) - 200px), 100vw)
+}
 
+player-bar-component {
+  width: 100%;
+}
+
+board-component {
+  flex: 1;
+  aspect-ratio: 1;
+  max-width: 100%;
+}
+
+.sidebar-container {
+  min-width: 350px;
   border-radius: 8px;
+}
+
+@media (max-width: calc(100vh + 145px)) {
+  .home-container {
+    flex-direction: column;
+    justify-content: start;
+  }
+
+  .game-container {
+    margin: auto;
+    width: min(calc(100vh - var(--navbar-height) - 200px), 100vw - 40px)
+  }
+
+  board-component {
+    width: 100%;
+  }
 }
