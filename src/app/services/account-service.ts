@@ -61,14 +61,13 @@ export class AccountService {
 	/**
 	 * Attempts to create a new account
 	 * 
-	 * @param email the email for the new account
 	 * @param username the username for the new account
 	 * @param password the plaintext password for the new account
 	 * @param experience the relative expierence of the new account
 	 */
-	public async createAccount(email: string, username: string, password: string, experience: 0 | 1 | 2 | 3): Promise<void> {
+	public async createAccount(username: string, password: string, experience: 0 | 1 | 2 | 3): Promise<void> {
 		const url = `${AccountService.BASE_URL}/register`;
-		const payload = {email: email, username: username, password: password, experience: experience};
+		const payload = {username: username, password: password, experience: experience};
 		const response = await firstValueFrom(this.http.post(url, payload));
 	}
 

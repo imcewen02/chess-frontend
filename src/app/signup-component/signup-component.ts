@@ -22,14 +22,6 @@ export class SignupComponent {
         experience: new FormControl<0 | 1 | 2 | 3>(0, {
             nonNullable: true
         }),
-        email: new FormControl<string>('', {
-            validators: [
-                Validators.required, 
-                Validators.email, 
-                Validators.maxLength(256)
-            ],
-            nonNullable: true
-        }),
         username: new FormControl<string>('', {
             validators: [
                 Validators.required, 
@@ -72,8 +64,8 @@ export class SignupComponent {
 
         try {
             this.registrationInProgress.set(true);
-            const { email, username, password, experience } = this.signupForm.getRawValue();
-            await this.accountService.createAccount(email, username, password, experience);
+            const { username, password, experience } = this.signupForm.getRawValue();
+            await this.accountService.createAccount(username, password, experience);
             await this.accountService.login(username, password);
             this.router.navigateByUrl('');
         } catch (err) {

@@ -5,13 +5,6 @@
         <div class="card border-success bg-dark-custom col-12 col-sm-8 col-md-6 col-lg-4 col-xl-3">
             <div class="card-body">
                 <form [formGroup]="signupForm" (ngSubmit)="registerUser()">
-                    <label for="email" class="text-light fw-bold">Email</label>
-                    <input id="email" type="email" class="form-control" formControlName="email" [ngClass]="[signupForm.get('email')?.invalid && signupForm.get('email')?.touched ? 'is-invalid' : '']">
-                    @if (signupForm.get('email')?.invalid && signupForm.get('email')?.touched) {
-                        <div class="invalid-feedback fw-bold">
-                            Email invalid.
-                        </div>
-                    }
 
                     <label for="username" class="text-light fw-bold mt-3">Username</label>
                     <input id="username" type="text" class="form-control" formControlName="username" [ngClass]="[signupForm.get('username')?.invalid && signupForm.get('username')?.touched ? 'is-invalid' : '']">
